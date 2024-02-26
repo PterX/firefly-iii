@@ -894,11 +894,6 @@ return [
     'can_have_virtual_amounts'     => [AccountType::ASSET],
     'can_have_opening_balance'     => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
     'dynamic_creation_allowed'     => [
-        AccountType::EXPENSE,
-        AccountType::REVENUE,
-        AccountType::INITIAL_BALANCE,
-        AccountType::RECONCILIATION,
-        AccountType::LIABILITY_CREDIT,
     ],
     'valid_asset_fields'           => ['account_role', 'account_number', 'currency_id', 'BIC', 'include_net_worth'],
     'valid_cc_fields'              => ['account_role', 'cc_monthly_payment_date', 'cc_type', 'account_number', 'currency_id', 'BIC', 'include_net_worth'],
