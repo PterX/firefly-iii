@@ -2677,6 +2677,11 @@ return [
     'ale_action_add_to_piggy'                             => '存钱罐',
     'ale_action_remove_from_piggy'                        => '存钱罐',
     'ale_action_add_tag'                                  => '添加标签',
+    'ale_action_update_amount'                            => '账单金额更新',
+    'ale_action_update_foreign_amount'                    => '外币金额更新',
+    'ale_action_update_source'                            => '账单来源账户更新',
+    'ale_action_update_destination'                       => '账单目标账户更新',
+    'ale_action_delete_transaction_type'                  => '账单已经删除',
 
     // dashboard
     'enable_auto_convert'                                 => '启用货币转换',
