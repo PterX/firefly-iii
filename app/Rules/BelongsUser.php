@@ -126,7 +126,7 @@ class BelongsUser implements ValidationRule
         if (0 === $value) {
             return true;
         }
-        $count = Bill::where('id', '=', $value)->where('user_id', '=', auth()->user()->id)->count();
+        $count = Bill::where('id', '=', $value)->where('user_group_id', '=', auth()->user()->user_group_id)->count();
 
         return 1 === $count;
     }
@@ -136,7 +136,7 @@ class BelongsUser implements ValidationRule
         if (0 === $value) {
             return true;
         }
-        $count = TransactionJournal::where('id', '=', $value)->where('user_id', '=', auth()->user()->id)->count();
+        $count = TransactionJournal::where('id', '=', $value)->where('user_group_id', '=', auth()->user()->user_group_id)->count();
 
         return 1 === $count;
     }
@@ -154,14 +154,14 @@ class BelongsUser implements ValidationRule
         if (0 === $value) {
             return true;
         }
-        $count = Budget::where('id', '=', $value)->where('user_id', '=', auth()->user()->id)->count();
+        $count = Budget::where('id', '=', $value)->where('user_group_id', '=', auth()->user()->user_group_id)->count();
 
         return 1 === $count;
     }
 
     private function validateCategoryId(int $value): bool
     {
-        $count = Category::where('id', '=', $value)->where('user_id', '=', auth()->user()->id)->count();
+        $count = Category::where('id', '=', $value)->where('user_group_id', '=', auth()->user()->user_group_id)->count();
 
         return 1 === $count;
     }
@@ -179,7 +179,7 @@ class BelongsUser implements ValidationRule
             // its ok to submit 0. other checks will fail.
             return true;
         }
-        $count = Account::where('id', '=', $value)->where('user_id', '=', auth()->user()->id)->count();
+        $count = Account::where('id', '=', $value)->where('user_group_id', '=', auth()->user()->user_group_id)->count();
 
         return 1 === $count;
     }

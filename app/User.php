@@ -216,7 +216,7 @@ class User extends Authenticatable
      */
     public function accounts(): HasMany
     {
-        return $this->hasMany(Account::class);
+        return $this->hasMany(Account::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -224,7 +224,7 @@ class User extends Authenticatable
      */
     public function attachments(): HasMany
     {
-        return $this->hasMany(Attachment::class);
+        return $this->hasMany(Attachment::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -232,7 +232,7 @@ class User extends Authenticatable
      */
     public function availableBudgets(): HasMany
     {
-        return $this->hasMany(AvailableBudget::class);
+        return $this->hasMany(AvailableBudget::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -240,7 +240,7 @@ class User extends Authenticatable
      */
     public function bills(): HasMany
     {
-        return $this->hasMany(Bill::class);
+        return $this->hasMany(Bill::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -248,7 +248,7 @@ class User extends Authenticatable
      */
     public function budgets(): HasMany
     {
-        return $this->hasMany(Budget::class);
+        return $this->hasMany(Budget::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -256,7 +256,7 @@ class User extends Authenticatable
      */
     public function categories(): HasMany
     {
-        return $this->hasMany(Category::class);
+        return $this->hasMany(Category::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -264,7 +264,7 @@ class User extends Authenticatable
      */
     public function currencies(): BelongsToMany
     {
-        return $this->belongsToMany(TransactionCurrency::class)->withTimestamps()->withPivot('user_default');
+        return $this->belongsToMany(TransactionCurrency::class, "user_group_id", "user_group_id")->withTimestamps()->withPivot('user_default');
     }
 
     /**
@@ -272,7 +272,7 @@ class User extends Authenticatable
      */
     public function currencyExchangeRates(): HasMany
     {
-        return $this->hasMany(CurrencyExchangeRate::class);
+        return $this->hasMany(CurrencyExchangeRate::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -442,7 +442,7 @@ class User extends Authenticatable
      */
     public function objectGroups(): HasMany
     {
-        return $this->hasMany(ObjectGroup::class);
+        return $this->hasMany(ObjectGroup::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -466,7 +466,7 @@ class User extends Authenticatable
      */
     public function recurrences(): HasMany
     {
-        return $this->hasMany(Recurrence::class);
+        return $this->hasMany(Recurrence::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -553,7 +553,7 @@ class User extends Authenticatable
      */
     public function ruleGroups(): HasMany
     {
-        return $this->hasMany(RuleGroup::class);
+        return $this->hasMany(RuleGroup::class, "user_group_id", "user_group_id");
     }
 
     // start LDAP related code
@@ -563,7 +563,7 @@ class User extends Authenticatable
      */
     public function rules(): HasMany
     {
-        return $this->hasMany(Rule::class);
+        return $this->hasMany(Rule::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -607,7 +607,7 @@ class User extends Authenticatable
      */
     public function tags(): HasMany
     {
-        return $this->hasMany(Tag::class);
+        return $this->hasMany(Tag::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -615,7 +615,7 @@ class User extends Authenticatable
      */
     public function transactionGroups(): HasMany
     {
-        return $this->hasMany(TransactionGroup::class);
+        return $this->hasMany(TransactionGroup::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -623,7 +623,7 @@ class User extends Authenticatable
      */
     public function transactionJournals(): HasMany
     {
-        return $this->hasMany(TransactionJournal::class);
+        return $this->hasMany(TransactionJournal::class, "user_group_id", "user_group_id");
     }
 
     /**
@@ -644,6 +644,6 @@ class User extends Authenticatable
      */
     public function webhooks(): HasMany
     {
-        return $this->hasMany(Webhook::class);
+        return $this->hasMany(Webhook::class, "user_group_id", "user_group_id");
     }
 }
