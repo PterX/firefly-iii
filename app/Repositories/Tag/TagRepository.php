@@ -35,6 +35,7 @@ use FireflyIII\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use FireflyIII\Enums\UserRoleEnum;
 
 /**
  * Class TagRepository.
@@ -53,6 +54,11 @@ class TagRepository implements TagRepositoryInterface
      */
     public function destroy(Tag $tag): bool
     {
+        $userGroup     = $this->user->userGroup;
+        $access        = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole("owner");
+        if (!$access) {
+            return false;
+        }
         \DB::table('tag_transaction_journal')->where('tag_id', $tag->id)->delete();
         $tag->transactionJournals()->sync([]);
         $tag->delete();

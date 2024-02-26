@@ -26,6 +26,8 @@ namespace FireflyIII\Factory;
 use FireflyIII\Models\Location;
 use FireflyIII\Models\Tag;
 use FireflyIII\User;
+use FireflyIII\Enums\UserRoleEnum;
+use FireflyIII\Exceptions\FireflyException;
 
 /**
  * Class TagFactory
@@ -45,6 +47,12 @@ class TagFactory
             app('log')->debug(sprintf('Tag exists (#%d), return it.', $dbTag->id));
 
             return $dbTag;
+        }
+        // check account manage permission
+        $userGroup = $this->user->userGroup;
+        $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole("owner");
+        if (!$access) {
+            throw new FireflyException(sprintf("TagFactory::create was no permission"));
         }
         $newTag = $this->create(
             [

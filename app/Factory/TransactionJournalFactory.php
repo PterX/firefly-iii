@@ -47,6 +47,7 @@ use FireflyIII\Support\NullArrayObject;
 use FireflyIII\User;
 use FireflyIII\Validation\AccountValidator;
 use Illuminate\Support\Collection;
+use FireflyIII\Enums\UserRoleEnum;
 
 /**
  * Class TransactionJournalFactory
@@ -97,6 +98,12 @@ class TransactionJournalFactory
      */
     public function create(array $data): Collection
     {
+        // check transaction manage permission
+        $userGroup = $this->user->userGroup;
+        $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_TRANSACTIONS) || $this->user->hasRole("owner");
+        if (!$access) {
+            throw new FireflyException(sprintf("TrasactionFactory::create was no permission"));
+        }
         app('log')->debug('Now in TransactionJournalFactory::create()');
         // convert to special object.
         $dataObject   = new NullArrayObject($data);

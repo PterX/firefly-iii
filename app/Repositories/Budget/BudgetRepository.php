@@ -45,6 +45,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use FireflyIII\Enums\UserRoleEnum;
 
 /**
  * Class BudgetRepository.
@@ -445,6 +446,11 @@ class BudgetRepository implements BudgetRepositoryInterface
 
     public function destroy(Budget $budget): bool
     {
+        $userGroup     = $this->user->userGroup;
+        $access        = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_BUDGETS) || $this->user->hasRole("owner");
+        if (!$access) {
+            return false;
+        }
         /** @var BudgetDestroyService $service */
         $service = app(BudgetDestroyService::class);
         $service->destroy($budget);

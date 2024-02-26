@@ -27,6 +27,7 @@ use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Category;
 use FireflyIII\User;
 use Illuminate\Database\QueryException;
+use FireflyIII\Enums\UserRoleEnum;
 
 /**
  * Class CategoryFactory
@@ -61,6 +62,13 @@ class CategoryFactory
             $category = $this->findByName($categoryName);
             if (null !== $category) {
                 return $category;
+            }
+
+            // check account manage permission
+            $userGroup = $this->user->userGroup;
+            $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole("owner");
+            if (!$access) {
+                throw new FireflyException(sprintf("CategoryFactory::create was no permission"));
             }
 
             try {

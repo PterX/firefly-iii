@@ -37,6 +37,7 @@ use FireflyIII\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use FireflyIII\Enums\UserRoleEnum;
 
 /**
  * Class CategoryRepository.
@@ -67,6 +68,11 @@ class CategoryRepository implements CategoryRepositoryInterface
 
     public function destroy(Category $category): bool
     {
+        $userGroup     = $this->user->userGroup;
+        $access        = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole("owner");
+        if (!$access) {
+            return false;
+        }
         /** @var CategoryDestroyService $service */
         $service = app(CategoryDestroyService::class);
         $service->destroy($category);

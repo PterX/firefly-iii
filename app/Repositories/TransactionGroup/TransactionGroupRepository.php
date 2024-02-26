@@ -46,6 +46,7 @@ use FireflyIII\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use FireflyIII\Enums\UserRoleEnum;
 
 /**
  * Class TransactionGroupRepository
@@ -72,6 +73,12 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
 
     public function destroy(TransactionGroup $group): void
     {
+        // check transaction manage permission
+        $userGroup     = $this->user->userGroup;
+        $access        = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_TRANSACTIONS) || $this->user->hasRole("owner");
+        if (!$access) {
+            return;
+        }
         app('log')->debug(sprintf('Now in %s', __METHOD__));
         $service = new TransactionGroupDestroyService();
         $service->destroy($group);
