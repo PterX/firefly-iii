@@ -522,7 +522,7 @@ class AccountRepository implements AccountRepositoryInterface
             ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
             ->orderBy('transaction_journals.date', 'ASC')
             ->orderBy('transaction_journals.order', 'DESC')
-            ->where('transaction_journals.user_id', $this->user->id)
+            ->where('transaction_journals.user_group_id', $this->user->user_group_id)
             ->orderBy('transaction_journals.id', 'ASC')
             ->first(['transaction_journals.id'])
         ;
