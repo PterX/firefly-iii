@@ -103,7 +103,7 @@ class GroupCollector implements GroupCollectorInterface
         $this->fields               = [
             // group
             'transaction_groups.id as transaction_group_id',
-            'transaction_groups.user_id as user_id',
+            // 'transaction_groups.user_id as user_id',
             'transaction_groups.user_group_id as user_group_id',
             'transaction_groups.created_at as created_at',
             'transaction_groups.updated_at as updated_at',
