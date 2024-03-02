@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 6.1.10 - 2024-03-03
+
+### Added
+
+- Add missing translations for rule page.
+
+### Changed
+
+- The update checker can also deal with development releases
+- Rule actions no longer complain when the category is already set
+
+### Removed
+
+- Unused translation on budget page
+
+### Fixed
+
+- [Issue 8521](https://github.com/firefly-iii/firefly-iii/issues/8521) (Total buget bar is missing when using SQLite) reported by @matlink
+- [Issue 8544](https://github.com/firefly-iii/firefly-iii/issues/8544) (Recurring transaction calendar preview is not working properly) reported by @Maxco10 
+- [Issue 8555](https://github.com/firefly-iii/firefly-iii/issues/8555) (Has no budget becomes has no category) reported by @Weiming-Hu 
+- [Discussion 8557](https://github.com/orgs/firefly-iii/discussions/8557) ("Delete ALL your transactions" also removes all asset opening balance information) started by @digitlength
+- [Issue 8575](https://github.com/firefly-iii/firefly-iii/issues/8575) (Creating rule from bill no longer pre-fills triggers and actions) reported by @jpelgrom
+- [Issue 8578](https://github.com/firefly-iii/firefly-iii/issues/8578) (Display Bug: foreign currency is red & negative in deposits) reported by @dreautall
+- Errors in incoming webhook URLs are properly caught
+
+### Security
+
+- Improved Host header validation to prevent a potential attack, reported by Raqib Iskenderli 
+
 ## 6.1.9 - 2024-02-06
 
 ### Fixed
