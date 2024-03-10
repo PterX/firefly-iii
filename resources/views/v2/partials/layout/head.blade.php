@@ -66,16 +66,9 @@
         Firefly III
     </title>
 
-    <!--begin::Primary Meta Tags-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @yield('styles')
+    @vite(['resources/assets/v2/sass/app.scss'])
 
-    <!--begin::Fonts-->
-    <link href="v2/css/fonts.css" rel="stylesheet">
-    <!--end::Fonts-->
-
-    <!--begin::Required Plugin(AdminLTE)-->
-    <link rel="stylesheet" href="v2/css/adminlte.css">
-    <!--end::Required Plugin(AdminLTE)-->
-    @yield('vite')
 
 </head>

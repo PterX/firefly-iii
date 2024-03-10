@@ -63,13 +63,16 @@ class IndexController extends Controller
     public function index(IndexRequest $request): JsonResponse
     {
         $this->repository->resetAccountOrder();
-        $types       = $request->getAccountTypes();
-        $accounts    = $this->repository->getAccountsByType($types);
-        $pageSize    = $this->parameters->get('limit');
-        $count       = $accounts->count();
-        $accounts    = $accounts->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
-        $paginator   = new LengthAwarePaginator($accounts, $count, $pageSize, $this->parameters->get('page'));
-        $transformer = new AccountTransformer();
+        $types        = $request->getAccountTypes();
+        $instructions = $request->getSortInstructions('accounts');
+        $accounts     = $this->repository->getAccountsByType($types, $instructions);
+        $pageSize     = $this->parameters->get('limit');
+        $count        = $accounts->count();
+        $accounts     = $accounts->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
+        $paginator    = new LengthAwarePaginator($accounts, $count, $pageSize, $this->parameters->get('page'));
+        $transformer  = new AccountTransformer();
+
+        $this->parameters->set('sort', $instructions);
         $transformer->setParameters($this->parameters); // give params to transformer
 
         return response()

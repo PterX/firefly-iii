@@ -122,13 +122,13 @@ class Account extends Model
 
     protected $casts
                                      = [
-                                         'created_at' => 'datetime',
-                                         'updated_at' => 'datetime',
-                                         'user_id'    => 'integer',
-                                         'deleted_at' => 'datetime',
-                                         'active'     => 'boolean',
-                                         'encrypted'  => 'boolean',
-                                     ];
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'user_id'    => 'integer',
+            'deleted_at' => 'datetime',
+            'active'     => 'boolean',
+            'encrypted'  => 'boolean',
+        ];
 
     protected $fillable              = ['user_id', 'user_group_id', 'account_type_id', 'name', 'active', 'virtual_balance', 'iban'];
 
@@ -271,6 +271,13 @@ class Account extends Model
     {
         return Attribute::make(
             get: static fn ($value) => (int)$value,
+        );
+    }
+
+    protected function iban(): Attribute
+    {
+        return Attribute::make(
+            get: static fn ($value) => null === $value ? null : trim(str_replace(' ', '', (string)$value)),
         );
     }
 

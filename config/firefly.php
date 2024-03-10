@@ -912,7 +912,7 @@ return [
     'sorting'                      => [
         'allowed' => [
             'transactions' => ['description', 'amount'],
-            'accounts'     => ['name'],
+            'accounts'     => ['name', 'active', 'iban', 'balance'],
         ],
     ],
 ];

@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Auth;
 
-use Cookie;
 use FireflyIII\Events\ActuallyLoggedIn;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
@@ -80,7 +79,18 @@ class LoginController extends Controller
         Log::channel('audit')->info(sprintf('User is trying to login using "%s"', $request->get($this->username())));
         app('log')->debug('User is trying to login.');
 
-        $this->validateLogin($request);
+        try {
+            $this->validateLogin($request);
+        } catch (ValidationException $e) {
+            return redirect(route('login'))
+                ->withErrors(
+                    [
+                        $this->username => trans('auth.failed'),
+                    ]
+                )
+                ->onlyInput($this->username)
+            ;
+        }
         app('log')->debug('Login data is present.');
 
         // Copied directly from AuthenticatesUsers, but with logging added:
@@ -91,7 +101,6 @@ class LoginController extends Controller
             Log::channel('audit')->warning(sprintf('Login for user "%s" was locked out.', $request->get($this->username())));
             app('log')->error(sprintf('Login for user "%s" was locked out.', $request->get($this->username())));
             $this->fireLockoutEvent($request);
-
             $this->sendLockoutResponse($request);
         }
         // Copied directly from AuthenticatesUsers, but with logging added:

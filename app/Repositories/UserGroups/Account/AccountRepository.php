@@ -239,16 +239,19 @@ class AccountRepository implements AccountRepositoryInterface
 
     public function getAccountsByType(array $types, ?array $sort = []): Collection
     {
-        $res   = array_intersect([AccountType::ASSET, AccountType::MORTGAGE, AccountType::LOAN, AccountType::DEBT], $types);
-        $query = $this->userGroup->accounts();
+        $sortable = ['name', 'active']; // TODO yes this is a duplicate array.
+        $res      = array_intersect([AccountType::ASSET, AccountType::MORTGAGE, AccountType::LOAN, AccountType::DEBT], $types);
+        $query    = $this->userGroup->accounts();
         if (0 !== count($types)) {
             $query->accountTypeIn($types);
         }
 
         // add sort parameters. At this point they're filtered to allowed fields to sort by:
-        if (0 !== count($sort)) {
-            foreach ($sort as $param) {
-                $query->orderBy($param[0], $param[1]);
+        if (count($sort) > 0) {
+            foreach ($sort as $column => $direction) {
+                if (in_array($column, $sortable, true)) {
+                    $query->orderBy(sprintf('accounts.%s', $column), $direction);
+                }
             }
         }
 

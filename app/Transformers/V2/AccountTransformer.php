@@ -48,7 +48,7 @@ class AccountTransformer extends AbstractTransformer
     /**
      * @throws FireflyException
      */
-    public function collectMetaData(Collection $objects): void
+    public function collectMetaData(Collection $objects): Collection
     {
         $this->currencies        = [];
         $this->accountMeta       = [];
@@ -63,10 +63,10 @@ class AccountTransformer extends AbstractTransformer
         // get currencies:
         $accountIds              = $objects->pluck('id')->toArray();
         $meta                    = AccountMeta::whereIn('account_id', $accountIds)
-            ->where('name', 'currency_id')
+            ->whereIn('name', ['currency_id', 'account_role', 'account_number'])
             ->get(['account_meta.id', 'account_meta.account_id', 'account_meta.name', 'account_meta.data'])
         ;
-        $currencyIds             = $meta->pluck('data')->toArray();
+        $currencyIds             = $meta->where('name', 'currency_id')->pluck('data')->toArray();
 
         $currencies              = $repository->getByIds($currencyIds);
         foreach ($currencies as $currency) {
@@ -88,6 +88,41 @@ class AccountTransformer extends AbstractTransformer
         foreach ($accountTypes as $row) {
             $this->accountTypes[$row->id] = (string)config(sprintf('firefly.shortNamesByFullName.%s', $row->type));
         }
+
+        // TODO needs separate method.
+        $sort                    = $this->parameters->get('sort');
+        if (count($sort) > 0) {
+            foreach ($sort as $column => $direction) {
+                // account_number + iban
+                if ('iban' === $column) {
+                    $meta    = $this->accountMeta;
+                    $objects = $objects->sort(function (Account $left, Account $right) use ($meta, $direction) {
+                        $leftIban  = trim(sprintf('%s%s', $left->iban, $meta[$left->id]['account_number'] ?? ''));
+                        $rightIban = trim(sprintf('%s%s', $right->iban, $meta[$right->id]['account_number'] ?? ''));
+                        if ('asc' === $direction) {
+                            return strcasecmp($leftIban, $rightIban);
+                        }
+
+                        return strcasecmp($rightIban, $leftIban);
+                    });
+                }
+                if ('balance' === $column) {
+                    $balances = $this->convertedBalances;
+                    $objects  = $objects->sort(function (Account $left, Account $right) use ($balances, $direction) {
+                        $leftBalance  = (float)($balances[$left->id]['native_balance'] ?? 0);
+                        $rightBalance = (float)($balances[$right->id]['native_balance'] ?? 0);
+                        if ('asc' === $direction) {
+                            return $leftBalance <=> $rightBalance;
+                        }
+
+                        return $rightBalance <=> $leftBalance;
+                    });
+                }
+            }
+        }
+
+        // $objects = $objects->sortByDesc('name');
+        return $objects;
     }
 
     private function getDate(): Carbon
@@ -133,7 +168,8 @@ class AccountTransformer extends AbstractTransformer
             'active'                         => $account->active,
             'order'                          => $order,
             'name'                           => $account->name,
-            'iban'                           => '' === $account->iban ? null : $account->iban,
+            'iban'                           => '' === (string)$account->iban ? null : $account->iban,
+            'account_number'                 => $this->accountMeta[$id]['account_number'] ?? null,
             'type'                           => strtolower($accountType),
             'account_role'                   => $accountRole,
             'currency_id'                    => (string)$currency->id,
