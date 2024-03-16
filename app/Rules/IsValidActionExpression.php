@@ -25,28 +25,33 @@ declare(strict_types=1);
 
 namespace FireflyIII\Rules;
 
-use Closure;
-use Illuminate\Contracts\Validation\ValidationRule;
 use FireflyIII\TransactionRules\Expressions\ActionExpression;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class IsValidActionExpression implements ValidationRule
 {
     /**
      * Check that the given action expression is syntactically valid.
      *
-     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param \Closure(string): PotentiallyTranslatedString $fail
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function validate(string $attribute, mixed $value, Closure $fail): void
+    public function validate(string $attribute, mixed $value, \Closure $fail): void
     {
+        if (false === config('firefly.feature_flags.expression_engine')) {
+            return;
+        }
         $value ??= '';
         $expr = new ActionExpression($value);
 
         if (!$expr->isValid()) {
-            $fail('validation.rule_action_expression')->translate([
-                'error' => $expr->getValidationError()->getMessage()
-            ]);
+            $fail('validation.rule_action_expression')->translate(
+                [
+                    'error' => $expr->getValidationError()->getMessage(),
+                ]
+            );
         }
     }
 }

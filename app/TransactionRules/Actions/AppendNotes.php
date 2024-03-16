@@ -27,12 +27,15 @@ use FireflyIII\Events\TriggeredAuditLog;
 use FireflyIII\Models\Note;
 use FireflyIII\Models\RuleAction;
 use FireflyIII\Models\TransactionJournal;
+use FireflyIII\TransactionRules\Traits\RefreshNotesTrait;
 
 /**
  * Class AppendNotes.
+ * TODO Can be replaced (and migrated) to action "set notes" with a prefilled expression
  */
 class AppendNotes implements ActionInterface
 {
+    use RefreshNotesTrait;
     private RuleAction $action;
 
     /**
@@ -45,6 +48,7 @@ class AppendNotes implements ActionInterface
 
     public function actOnArray(array $journal): bool
     {
+        $this->refreshNotes($journal);
         $dbNote       = Note::where('noteable_id', (int)$journal['transaction_journal_id'])
             ->where('noteable_type', TransactionJournal::class)
             ->first(['notes.*'])

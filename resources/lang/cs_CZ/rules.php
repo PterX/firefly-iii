@@ -49,10 +49,10 @@ return [
     'already_has_destination_asset'               => 'Tato transakce již má ":name" jako cílový majetkový účet',
     'already_has_destination'                     => 'Tato transakce již má ":name" jako cílový účet',
     'already_has_source'                          => 'Tato transakce již má ":name" jako zdrojový účet',
-    'already_linked_to_subscription'              => 'The transaction is already linked to subscription ":name"',
+    'already_linked_to_subscription'              => 'Transakce je již propojena s předplatným ":name"',
     'already_linked_to_category'                  => 'Transakce je již propojena s kategorií ":name"',
     'already_linked_to_budget'                    => 'Transakce je již propojena s rozpočtem ":name"',
-    'cannot_find_subscription'                    => 'Firefly III can\'t find subscription ":name"',
+    'cannot_find_subscription'                    => 'Firefly III nemůže najít předplatné ":name"',
     'no_notes_to_move'                            => 'Transakce nemá žádné poznámky k přesunutí do pole popisu',
     'no_tags_to_remove'                           => 'Transakce nemá žádné štítky k odstranění',
     'not_withdrawal'                              => 'Transakce není výběrem',
@@ -70,4 +70,5 @@ return [
     'cannot_find_budget'                          => 'Firefly III nemůže najít rozpočet ":name"',
     'cannot_find_category'                        => 'Firefly III nemůže najít kategorii ":name"',
     'cannot_set_budget'                           => 'Firefly III nemůže nastavit rozpočet ":name" na transakci typu ":type"',
+    'journal_invalid_amount'                      => 'Firefly III can\'t set amount ":amount" because it is not a valid number.',
 ];

@@ -31,6 +31,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\ExpressionLanguage\SyntaxError;
 
 /**
  * FireflyIII\Models\RuleAction
@@ -76,6 +78,26 @@ class RuleAction extends Model
 
     protected $fillable = ['rule_id', 'action_type', 'action_value', 'order', 'active', 'stop_processing'];
 
+    public function getValue(array $journal): string
+    {
+        if (false === config('firefly.feature_flags.expression_engine')) {
+            Log::debug('Expression engine is disabled, returning action value as string.');
+
+            return (string)$this->action_value;
+        }
+        $expr = new ActionExpression($this->action_value);
+
+        try {
+            $result = $expr->evaluate($journal);
+        } catch (SyntaxError $e) {
+            Log::error(sprintf('Expression engine failed to evaluate expression "%s" with error "%s".', $this->action_value, $e->getMessage()));
+            $result = (string)$this->action_value;
+        }
+        Log::debug(sprintf('Expression engine is enabled, result of expression "%s" is "%s".', $this->action_value, $result));
+
+        return $result;
+    }
+
     public function rule(): BelongsTo
     {
         return $this->belongsTo(Rule::class);
@@ -93,11 +115,5 @@ class RuleAction extends Model
         return Attribute::make(
             get: static fn ($value) => (int)$value,
         );
-    }
-
-    public function getValue(array $journal): string
-    {
-        $expr = new ActionExpression($this->action_value);
-        return $expr->evaluate($journal);
     }
 }

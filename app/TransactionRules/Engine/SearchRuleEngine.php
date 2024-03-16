@@ -26,15 +26,18 @@ namespace FireflyIII\TransactionRules\Engine;
 
 use Carbon\Carbon;
 use FireflyIII\Exceptions\FireflyException;
+use FireflyIII\Models\Note;
 use FireflyIII\Models\Rule;
 use FireflyIII\Models\RuleAction;
 use FireflyIII\Models\RuleGroup;
 use FireflyIII\Models\RuleTrigger;
+use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Support\Search\SearchInterface;
 use FireflyIII\TransactionRules\Factory\ActionFactory;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class SearchRuleEngine
@@ -79,8 +82,10 @@ class SearchRuleEngine implements RuleEngineInterface
             }
             $collection = $collection->merge($found);
         }
+        $result     = $collection->unique();
+        app('log')->debug(sprintf('SearchRuleEngine::find() returns %d unique transactions.', $result->count()));
 
-        return $collection->unique();
+        return $result;
     }
 
     /**
@@ -103,9 +108,13 @@ class SearchRuleEngine implements RuleEngineInterface
             if (false === $ruleTrigger->active) {
                 continue;
             }
+            $contextSearch = $ruleTrigger->trigger_type;
+            if(str_starts_with($ruleTrigger->trigger_type, '-')) {
+                $contextSearch = substr($ruleTrigger->trigger_type, 1);
+            }
 
             // if the trigger needs no context, value is different:
-            $needsContext = (bool)(config(sprintf('search.operators.%s.needs_context', $ruleTrigger->trigger_type)) ?? true);
+            $needsContext = (bool)(config(sprintf('search.operators.%s.needs_context', $contextSearch)) ?? true);
             if (false === $needsContext) {
                 app('log')->debug(sprintf('SearchRuleEngine:: add a rule trigger (no context): %s:true', $ruleTrigger->trigger_type));
                 $searchArray[$ruleTrigger->trigger_type][] = 'true';
@@ -432,6 +441,7 @@ class SearchRuleEngine implements RuleEngineInterface
     private function processRuleAction(RuleAction $ruleAction, array $transaction): bool
     {
         app('log')->debug(sprintf('Executing rule action "%s" with value "%s"', $ruleAction->action_type, $ruleAction->action_value));
+        $transaction = $this->addNotes($transaction);
         $actionClass = ActionFactory::getAction($ruleAction);
         $result      = $actionClass->actOnArray($transaction);
         $journalId   = $transaction['transaction_journal_id'] ?? 0;
@@ -531,5 +541,17 @@ class SearchRuleEngine implements RuleEngineInterface
                 $this->rules->push($rule);
             }
         }
+    }
+
+    private function addNotes(array $transaction): array
+    {
+        $transaction['notes'] = '';
+        $dbNote               = Note::where('noteable_id', (int)$transaction['transaction_journal_id'])->where('noteable_type', TransactionJournal::class)->first(['notes.*']);
+        if (null !== $dbNote) {
+            $transaction['notes'] = $dbNote->text;
+        }
+        Log::debug(sprintf('Notes of journal #%d filled in.', $transaction['transaction_journal_id']));
+
+        return $transaction;
     }
 }
