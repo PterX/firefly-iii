@@ -2776,7 +2776,6 @@ return [
     'ale_action_update_source'                            => '账单来源账户更新',
     'ale_action_update_destination'                       => '账单目标账户更新',
     'ale_action_delete_transaction_type'                  => '账单已经删除',
-    'ale_action_update_amount'                            => 'Updated amount',
 
     // dashboard
     'enable_auto_convert'                                 => '启用货币转换',
