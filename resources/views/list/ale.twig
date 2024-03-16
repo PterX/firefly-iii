@@ -87,11 +87,6 @@
                     {% endif %}
                 {% endif %}
 
-                {% if 'update_amount' == logEntry.action %}
-                    <code><s>{{ logEntry.before }}</s></code>
-                    &rarr;
-                    <code>{{ logEntry.after }}</code>
-                {% endif %}
                 {% if 'update_foreign_amount' == logEntry.action %}
                     <code><s>{{ logEntry.before }}</s></code>
                     &rarr;

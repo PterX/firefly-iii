@@ -699,8 +699,16 @@ class JournalUpdateService
                 $this->transactionJournal->user,
                 $this->transactionJournal,
                 'update_amount',
-                app('amount')->formatFlat($currency->symbol, $currency->decimal_places, $oldAmount, false),
-                app('amount')->formatFlat($currency->symbol, $currency->decimal_places, $newAmount, false)
+                [
+                    'currency_symbol' => $currency->symbol,
+                    'decimal_places'  => $currency->decimal_places,
+                    'amount'          => $oldAmount,
+                ],
+                [
+                    'currency_symbol' => $currency->symbol,
+                    'decimal_places'  => $currency->decimal_places,
+                    'amount'          => $newAmount,
+                ]
             ));
         }
         $origSourceTransaction->amount = app('steam')->negative($amount);
@@ -749,8 +757,16 @@ class JournalUpdateService
                     $this->transactionJournal->user,
                     $this->transactionJournal,
                     'update_foreign_amount',
-                    app('amount')->formatFlat($foreignCurrency->symbol, $foreignCurrency->decimal_places, $oldAmount, false),
-                    app('amount')->formatFlat($foreignCurrency->symbol, $foreignCurrency->decimal_places, $newAmount, false)
+                    [
+                        'currency_symbol' => $foreignCurrency->symbol,
+                        'decimal_places'  => $foreignCurrency->decimal_places,
+                        'amount'          => $oldAmount,
+                    ],
+                    [
+                        'currency_symbol' => $foreignCurrency->symbol,
+                        'decimal_places'  => $foreignCurrency->decimal_places,
+                        'amount'          => $newAmount,
+                    ]
                 ));
             }
             $source->foreign_currency_id = $foreignCurrency->id;
