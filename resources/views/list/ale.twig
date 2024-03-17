@@ -87,7 +87,7 @@
                     {% endif %}
                 {% endif %}
 
-                {% if 'update_amount' == logEntry.action %}
+                {% if 'update_foreign_amount' == logEntry.action %}
                     {{ formatAmountBySymbol(logEntry.before.amount, logEntry.before.currency_symbol, logEntry.before.decimal_places, true) }}
                     &rarr;
                     {{ formatAmountBySymbol(logEntry.after.amount, logEntry.after.currency_symbol, logEntry.after.decimal_places, true) }}
