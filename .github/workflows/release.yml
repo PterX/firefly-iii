@@ -23,15 +23,6 @@ jobs:
         with:
           php-version: '8.3'
           extensions: mbstring, intl, zip, bcmath
-      - name: Cleanup translations
-        id: cleanup-transactions
-        uses: JC5/firefly-iii-dev@v34
-        with:
-          action: 'ff3:crowdin-warning'
-          output: ''
-        env:
-          FIREFLY_III_ROOT: /github/workspace
-          GH_TOKEN: ''
       - name: Cleanup changelog
         id: cleanup-changelog
         uses: JC5/firefly-iii-dev@v34
