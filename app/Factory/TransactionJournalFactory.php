@@ -99,10 +99,10 @@ class TransactionJournalFactory
     public function create(array $data): Collection
     {
         // check transaction manage permission
-        $userGroup = $this->user->userGroup;
-        $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_TRANSACTIONS) || $this->user->hasRole("owner");
+        $userGroup    = $this->user->userGroup;
+        $access       = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_TRANSACTIONS) || $this->user->hasRole('owner');
         if (!$access) {
-            throw new FireflyException(sprintf("TrasactionFactory::create was no permission"));
+            throw new FireflyException('TrasactionFactory::create was no permission');
         }
         app('log')->debug('Now in TransactionJournalFactory::create()');
         // convert to special object.

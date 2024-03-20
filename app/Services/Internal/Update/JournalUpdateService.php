@@ -369,8 +369,8 @@ class JournalUpdateService
         }
 
         // if the source account or destination account changed, fire an event
-        $sourceAccount 				= $this->getOriginalSourceAccount();
-        $destinationAccount 		= $this->getOriginalDestinationAccount();
+        $sourceAccount         = $this->getOriginalSourceAccount();
+        $destinationAccount    = $this->getOriginalDestinationAccount();
         if ($sourceAccount->id !== $source->id) {
             event(new TriggeredAuditLog(
                 $this->transactionJournal->user,
@@ -459,7 +459,7 @@ class JournalUpdateService
             $result      = $typeFactory->find($this->data['type']);
             if (null !== $result) {
                 // if the transaction type changed, fire an event
-                $newType = $this->transactionJournal->transactionType;
+                $newType                                       = $this->transactionJournal->transactionType;
                 if ($result->type !== $newType->type) {
                     event(new TriggeredAuditLog(
                         $this->transactionJournal->user,
@@ -690,10 +690,10 @@ class JournalUpdateService
         $origSourceTransaction         = $this->getSourceTransaction();
         $destTransaction               = $this->getDestinationTransaction();
         // if the amount changed, fire an event
-        $currencyId 				   = $origSourceTransaction->transaction_currency_id;
-        $currency					   = $this->currencyRepository->findCurrency($currencyId, null);
-        $newAmount 					   = app('steam')->positive($amount);
-        $oldAmount 					   = app('steam')->positive($destTransaction->amount);
+        $currencyId                    = $origSourceTransaction->transaction_currency_id;
+        $currency                      = $this->currencyRepository->findCurrency($currencyId, null);
+        $newAmount                     = app('steam')->positive($amount);
+        $oldAmount                     = app('steam')->positive($destTransaction->amount);
         if (0 !== bccomp($oldAmount, $newAmount, $currency->decimal_places)) {
             event(new TriggeredAuditLog(
                 $this->transactionJournal->user,

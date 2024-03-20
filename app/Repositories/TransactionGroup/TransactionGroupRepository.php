@@ -74,13 +74,13 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
     public function destroy(TransactionGroup $group): void
     {
         // check transaction manage permission
-        $userGroup     = $this->user->userGroup;
-        $access        = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_TRANSACTIONS) || $this->user->hasRole("owner");
+        $userGroup = $this->user->userGroup;
+        $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_TRANSACTIONS) || $this->user->hasRole('owner');
         if (!$access) {
             return;
         }
         app('log')->debug(sprintf('Now in %s', __METHOD__));
-        $service = new TransactionGroupDestroyService();
+        $service   = new TransactionGroupDestroyService();
         $service->destroy($group);
     }
 

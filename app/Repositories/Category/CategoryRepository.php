@@ -68,13 +68,14 @@ class CategoryRepository implements CategoryRepositoryInterface
 
     public function destroy(Category $category): bool
     {
-        $userGroup     = $this->user->userGroup;
-        $access        = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole("owner");
+        $userGroup = $this->user->userGroup;
+        $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole('owner');
         if (!$access) {
             return false;
         }
+
         /** @var CategoryDestroyService $service */
-        $service = app(CategoryDestroyService::class);
+        $service   = app(CategoryDestroyService::class);
         $service->destroy($category);
 
         return true;

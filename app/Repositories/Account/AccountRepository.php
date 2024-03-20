@@ -57,13 +57,14 @@ class AccountRepository implements AccountRepositoryInterface
     public function destroy(Account $account, ?Account $moveTo): bool
     {
         // check account manage permission
-        $userGroup     = $this->user->userGroup;
-        $access        = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole("owner");
+        $userGroup = $this->user->userGroup;
+        $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole('owner');
         if (!$access) {
             return false;
         }
+
         /** @var AccountDestroyService $service */
-        $service = app(AccountDestroyService::class);
+        $service   = app(AccountDestroyService::class);
         $service->destroy($account, $moveTo);
 
         return true;

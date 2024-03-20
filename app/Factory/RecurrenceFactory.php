@@ -59,11 +59,12 @@ class RecurrenceFactory
     public function create(array $data): Recurrence
     {
         // check account manage permission
-        $userGroup = $this->user->userGroup;
-        $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_RECURRING) || $this->user->hasRole("owner");
+        $userGroup         = $this->user->userGroup;
+        $access            = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_RECURRING) || $this->user->hasRole('owner');
         if (!$access) {
-            throw new FireflyException(sprintf("RecurrenceFactory::create was no permission"));
+            throw new FireflyException('RecurrenceFactory::create was no permission');
         }
+
         try {
             $type = $this->findTransactionType(ucfirst($data['recurrence']['type']));
         } catch (FireflyException $e) {

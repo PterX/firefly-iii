@@ -38,11 +38,11 @@ class TagFactory
 
     public function findOrCreate(string $tag): ?Tag
     {
-        $tag    = trim($tag);
+        $tag       = trim($tag);
         app('log')->debug(sprintf('Now in TagFactory::findOrCreate("%s")', $tag));
 
         /** @var null|Tag $dbTag */
-        $dbTag  = $this->user->tags()->where('tag', $tag)->first();
+        $dbTag     = $this->user->tags()->where('tag', $tag)->first();
         if (null !== $dbTag) {
             app('log')->debug(sprintf('Tag exists (#%d), return it.', $dbTag->id));
 
@@ -50,11 +50,11 @@ class TagFactory
         }
         // check account manage permission
         $userGroup = $this->user->userGroup;
-        $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole("owner");
+        $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole('owner');
         if (!$access) {
-            throw new FireflyException(sprintf("TagFactory::create was no permission"));
+            throw new FireflyException('TagFactory::create was no permission');
         }
-        $newTag = $this->create(
+        $newTag    = $this->create(
             [
                 'tag'         => $tag,
                 'date'        => null,

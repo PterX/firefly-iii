@@ -59,16 +59,16 @@ class CategoryFactory
         }
 
         if ('' !== $categoryName) {
-            $category = $this->findByName($categoryName);
+            $category  = $this->findByName($categoryName);
             if (null !== $category) {
                 return $category;
             }
 
             // check account manage permission
             $userGroup = $this->user->userGroup;
-            $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole("owner");
+            $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole('owner');
             if (!$access) {
-                throw new FireflyException(sprintf("CategoryFactory::create was no permission"));
+                throw new FireflyException('CategoryFactory::create was no permission');
             }
 
             try {

@@ -39,16 +39,16 @@ class JournalDestroyService
     public function destroy(TransactionJournal $journal): void
     {
         // fire the event if destroy an transaction
-        $currencyRepository     	= app(CurrencyRepositoryInterface::class);
-        $destinationTransaction 	= $journal->transactions()->where('amount', '>', 0)->first();
-        $sourceTransaction 			= $journal->transactions()->where('amount', '<', 0)->first();
-        $date						= $journal->date;
-        $currencyId 				= $destinationTransaction->transaction_currency_id;
-        $currency					= $currencyRepository->findCurrency($currencyId, null);
-        $amount						= app('steam')->bcround($destinationTransaction->amount, $currency->decimal_places);
+        $currencyRepository     = app(CurrencyRepositoryInterface::class);
+        $destinationTransaction = $journal->transactions()->where('amount', '>', 0)->first();
+        $sourceTransaction      = $journal->transactions()->where('amount', '<', 0)->first();
+        $date                   = $journal->date;
+        $currencyId             = $destinationTransaction->transaction_currency_id;
+        $currency               = $currencyRepository->findCurrency($currencyId, null);
+        $amount                 = app('steam')->bcround($destinationTransaction->amount, $currency->decimal_places);
         // source account -> destination account
-        $sourceAccount 				= $sourceTransaction->account()->first()->name;
-        $destinationAccount         = $destinationTransaction->account()->first()->name.'('.$journal->description.') '.$currency->symbol.$amount;
+        $sourceAccount          = $sourceTransaction->account()->first()->name;
+        $destinationAccount     = $destinationTransaction->account()->first()->name.'('.$journal->description.') '.$currency->symbol.$amount;
         event(new TriggeredAuditLog(
             $journal->user,
             $journal,
@@ -106,7 +106,7 @@ class JournalDestroyService
         $journal->delete();
 
         // delete group, if group is empty:
-        $group = $journal->transactionGroup;
+        $group                  = $journal->transactionGroup;
         if (null !== $group) {
             $count = $group->transactionJournals->count();
             if (0 === $count) {

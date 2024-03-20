@@ -446,13 +446,14 @@ class BudgetRepository implements BudgetRepositoryInterface
 
     public function destroy(Budget $budget): bool
     {
-        $userGroup     = $this->user->userGroup;
-        $access        = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_BUDGETS) || $this->user->hasRole("owner");
+        $userGroup = $this->user->userGroup;
+        $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_BUDGETS) || $this->user->hasRole('owner');
         if (!$access) {
             return false;
         }
+
         /** @var BudgetDestroyService $service */
-        $service = app(BudgetDestroyService::class);
+        $service   = app(BudgetDestroyService::class);
         $service->destroy($budget);
 
         return true;

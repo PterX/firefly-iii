@@ -54,8 +54,8 @@ class TagRepository implements TagRepositoryInterface
      */
     public function destroy(Tag $tag): bool
     {
-        $userGroup     = $this->user->userGroup;
-        $access        = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole("owner");
+        $userGroup = $this->user->userGroup;
+        $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole('owner');
         if (!$access) {
             return false;
         }

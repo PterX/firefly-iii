@@ -105,10 +105,10 @@ class AccountFactory
     public function create(array $data): Account
     {
         // check account manage permission
-        $userGroup = $this->user->userGroup;
-        $access    = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole("owner");
+        $userGroup    = $this->user->userGroup;
+        $access       = $this->user->hasRoleInGroupOrOwner($userGroup, UserRoleEnum::MANAGE_META) || $this->user->hasRole('owner');
         if (!$access) {
-            throw new FireflyException(sprintf("AccountFactory::create was no permission"));
+            throw new FireflyException('AccountFactory::create was no permission');
         }
         app('log')->debug('Now in AccountFactory::create()');
         $type         = $this->getAccountType($data);
