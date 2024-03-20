@@ -121,8 +121,7 @@ jobs:
           zip -rq $zipName . -x "*.git*" "*.ci*" "*.github*" "*node_modules*" "*output.txt*"
 
           echo "Create default release."
-          git tag -a $releaseName -m "Here be changelog"
-          git push origin $releaseName
+
           gh release create $releaseName -F output.txt -t "$releaseName" --verify-tag
           # add zip file to release.
           gh release upload $releaseName $zipName
