@@ -69,12 +69,12 @@ class RuleAction extends Model
 
     protected $casts
                         = [
-                            'created_at'      => 'datetime',
-                            'updated_at'      => 'datetime',
-                            'active'          => 'boolean',
-                            'order'           => 'int',
-                            'stop_processing' => 'boolean',
-                        ];
+            'created_at'      => 'datetime',
+            'updated_at'      => 'datetime',
+            'active'          => 'boolean',
+            'order'           => 'int',
+            'stop_processing' => 'boolean',
+        ];
 
     protected $fillable = ['rule_id', 'action_type', 'action_value', 'order', 'active', 'stop_processing'];
 
@@ -84,6 +84,10 @@ class RuleAction extends Model
             Log::debug('Expression engine is disabled, returning action value as string.');
 
             return (string)$this->action_value;
+        }
+        if (true === config('firefly.feature_flags.expression_engine') && str_starts_with($this->action_value, '\=')) {
+            // return literal string.
+            return substr($this->action_value, 1);
         }
         $expr = new ActionExpression($this->action_value);
 

@@ -3,6 +3,40 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 6.1.11 - 2024-03-20
+
+### Added
+
+- New expression engine by @michaelhthomas, still disabled though.
+- Missing database indexes to speed up performance.
+- A button to the experimental `v2`-layout to go back to `v1`.
+
+### Changed
+
+- New login/register screens
+- New CSP headers
+
+### Deprecated
+
+- Dropped all old v3 code.
+- Dropped all generated JS and CSS, thanks @paulius-valiunas!
+
+### Fixed
+
+- [Discussion 8569](https://github.com/orgs/firefly-iii/discussions/8569) (What is classed as an "automatic transaction" when it comes to notifications?) started by @digitlength
+- [Issue 8608](https://github.com/firefly-iii/firefly-iii/issues/8608) (404 error when deleting a category) reported by @Jademalo
+- [Issue 8616](https://github.com/firefly-iii/firefly-iii/issues/8616) (Create right now option for recurring transaction missing during weekend) reported by @Transportman
+- [PR 8634](https://github.com/firefly-iii/firefly-iii/pull/8634) ([trivial] fix broken link in readme) reported by @WardenJakx
+- [Issue 8632](https://github.com/firefly-iii/firefly-iii/issues/8632) (No search results returned when using `tag_contains` and `tag_starts`) reported by @Call-Me-G-Now
+- [Issue 8663](https://github.com/firefly-iii/firefly-iii/issues/8663) (Graph error on Reports) reported by @nicolopozzato
+- [Issue 8671](https://github.com/firefly-iii/firefly-iii/issues/8671) (Rule with -has_any_category:true trigger not triggering) reported by @pvieira84
+- [Issue 8672](https://github.com/firefly-iii/firefly-iii/issues/8672) (Can't remove foreign amount using the trash icon) reported by @danielnetop
+- [Issue 8668](https://github.com/firefly-iii/firefly-iii/issues/8668) (Not possible to upload CSV file as an attachment) reported by @dbtdsilva
+
+### Removed
+
+- Support for Mandrill because the necessary packages aren't maintained anymore.
+
 ## 6.1.10 - 2024-03-03
 
 ### Added

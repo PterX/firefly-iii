@@ -202,7 +202,7 @@ class RecurringRepository implements RecurringRepositoryInterface
     /**
      * Returns the journals created for this recurrence, possibly limited by time.
      */
-    public function getJournalCount(Recurrence $recurrence, Carbon $start = null, Carbon $end = null): int
+    public function getJournalCount(Recurrence $recurrence, ?Carbon $start = null, ?Carbon $end = null): int
     {
         $query = TransactionJournal::leftJoin('journal_meta', 'journal_meta.transaction_journal_id', '=', 'transaction_journals.id')
             ->where('transaction_journals.user_id', $recurrence->user_id)
@@ -476,7 +476,7 @@ class RecurringRepository implements RecurringRepositoryInterface
             if (false === $repDate) {
                 $repDate = clone $today;
             }
-            $diffInYears = $today->diffInYears($repDate);
+            $diffInYears = (int) $today->diffInYears($repDate, true);
             $repDate->addYears($diffInYears); // technically not necessary.
             $string      = $repDate->isoFormat((string)trans('config.month_and_day_no_year_js'));
 

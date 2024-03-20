@@ -231,7 +231,6 @@ class ChangesForV550 extends Migration
                         $table->unsignedSmallInteger('delivery');
                         $table->string('url', 1024);
                         $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-                        $table->unique(['user_id', 'title']);
                     }
                 );
             } catch (QueryException $e) {

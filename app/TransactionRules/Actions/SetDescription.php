@@ -34,6 +34,7 @@ use FireflyIII\TransactionRules\Traits\RefreshNotesTrait;
 class SetDescription implements ActionInterface
 {
     use RefreshNotesTrait;
+
     private RuleAction $action;
 
     /**
@@ -52,6 +53,9 @@ class SetDescription implements ActionInterface
         $object = TransactionJournal::where('user_id', $journal['user_id'])->find($journal['transaction_journal_id']);
         $before = $object->description;
         $after  = $this->action->getValue($journal);
+
+        // replace newlines.
+        $after  = str_replace(["\r", "\n", "\t", "\036", "\025"], '', $after);
 
         \DB::table('transaction_journals')
             ->where('id', '=', $journal['transaction_journal_id'])

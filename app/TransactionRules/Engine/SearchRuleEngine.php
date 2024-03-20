@@ -109,12 +109,12 @@ class SearchRuleEngine implements RuleEngineInterface
                 continue;
             }
             $contextSearch = $ruleTrigger->trigger_type;
-            if(str_starts_with($ruleTrigger->trigger_type, '-')) {
+            if (str_starts_with($ruleTrigger->trigger_type, '-')) {
                 $contextSearch = substr($ruleTrigger->trigger_type, 1);
             }
 
             // if the trigger needs no context, value is different:
-            $needsContext = (bool)(config(sprintf('search.operators.%s.needs_context', $contextSearch)) ?? true);
+            $needsContext  = (bool)(config(sprintf('search.operators.%s.needs_context', $contextSearch)) ?? true);
             if (false === $needsContext) {
                 app('log')->debug(sprintf('SearchRuleEngine:: add a rule trigger (no context): %s:true', $ruleTrigger->trigger_type));
                 $searchArray[$ruleTrigger->trigger_type][] = 'true';
@@ -473,6 +473,18 @@ class SearchRuleEngine implements RuleEngineInterface
         return false;
     }
 
+    private function addNotes(array $transaction): array
+    {
+        $transaction['notes'] = '';
+        $dbNote               = Note::where('noteable_id', (int)$transaction['transaction_journal_id'])->where('noteable_type', TransactionJournal::class)->first(['notes.*']);
+        if (null !== $dbNote) {
+            $transaction['notes'] = $dbNote->text;
+        }
+        Log::debug(sprintf('Notes of journal #%d filled in.', $transaction['transaction_journal_id']));
+
+        return $transaction;
+    }
+
     /**
      * Return true if the rule is fired (the collection is larger than zero).
      *
@@ -541,17 +553,5 @@ class SearchRuleEngine implements RuleEngineInterface
                 $this->rules->push($rule);
             }
         }
-    }
-
-    private function addNotes(array $transaction): array
-    {
-        $transaction['notes'] = '';
-        $dbNote               = Note::where('noteable_id', (int)$transaction['transaction_journal_id'])->where('noteable_type', TransactionJournal::class)->first(['notes.*']);
-        if (null !== $dbNote) {
-            $transaction['notes'] = $dbNote->text;
-        }
-        Log::debug(sprintf('Notes of journal #%d filled in.', $transaction['transaction_journal_id']));
-
-        return $transaction;
     }
 }
