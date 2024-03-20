@@ -128,9 +128,6 @@ jobs:
           gh release upload $releaseName $zipName
           rm output.txt
           rm $zipName
-          git checkout develop
-          git merge main
-          git push
         env:
           GH_TOKEN: ${{ github.token }}
           version: ${{ github.event_name == 'schedule' && 'develop' || github.event.inputs.version }}
