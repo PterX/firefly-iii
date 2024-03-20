@@ -61,6 +61,7 @@ class AttachmentFactory
         $attachment = Attachment::create(
             [
                 'user_id'         => $this->user->id,
+                'user_group_id'   => $this->user->user_group_id,
                 'attachable_id'   => $data['attachable_id'],
                 'attachable_type' => $model,
                 'md5'             => '',
