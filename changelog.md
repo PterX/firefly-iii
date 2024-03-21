@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 6.1.12 - 2024-03-21
+
+### Fixed
+
+- Exclude debug files from release zip file
+- Drop a duplicate index
+- Replace broken Laravel Passport commands
+- [Issue 8692](https://github.com/firefly-iii/firefly-iii/issues/8692) (passport:install step issue when upgrading to 6.1.11) reported by @captainark
+- [Discussion 8694](https://github.com/orgs/firefly-iii/discussions/8694) (Getting error on accessing admin panel of Firefly 6.1.11) started by @jameswill
+
 ## 6.1.11 - 2024-03-20
 
 ### Added
