@@ -240,15 +240,19 @@ class AccountRepository implements AccountRepositoryInterface
 
     public function getAccountsByType(array $types, ?array $sort = []): Collection
     {
-        $sortable = ['name', 'active']; // TODO yes this is a duplicate array.
-        $res      = array_intersect([AccountType::ASSET, AccountType::MORTGAGE, AccountType::LOAN, AccountType::DEBT], $types);
-        $query    = $this->userGroup->accounts();
+        $sortable        = ['name', 'active']; // TODO yes this is a duplicate array.
+        $res             = array_intersect([AccountType::ASSET, AccountType::MORTGAGE, AccountType::LOAN, AccountType::DEBT], $types);
+        $query           = $this->userGroup->accounts();
         if (0 !== count($types)) {
             $query->accountTypeIn($types);
         }
 
         // add sort parameters. At this point they're filtered to allowed fields to sort by:
+        $hasActiveColumn = array_key_exists('active', $sort);
         if (count($sort) > 0) {
+            if (false === $hasActiveColumn) {
+                $query->orderBy('accounts.active', 'DESC');
+            }
             foreach ($sort as $column => $direction) {
                 if (in_array($column, $sortable, true)) {
                     $query->orderBy(sprintf('accounts.%s', $column), $direction);
@@ -258,9 +262,9 @@ class AccountRepository implements AccountRepositoryInterface
 
         if (0 === count($sort)) {
             if (0 !== count($res)) {
-                $query->orderBy('accounts.order', 'ASC');
+                $query->orderBy('accounts.active', 'DESC');
             }
-            $query->orderBy('accounts.active', 'DESC');
+            $query->orderBy('accounts.order', 'ASC');
             $query->orderBy('accounts.name', 'ASC');
         }
 

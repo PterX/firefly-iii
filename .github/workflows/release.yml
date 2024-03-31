@@ -25,7 +25,7 @@ jobs:
           extensions: mbstring, intl, zip, bcmath
       - name: Cleanup changelog
         id: cleanup-changelog
-        uses: JC5/firefly-iii-dev@v34
+        uses: JC5/firefly-iii-dev@v36
         with:
           action: 'ff3:changelog'
           output: ''
@@ -34,7 +34,7 @@ jobs:
           GH_TOKEN: ${{ secrets.CHANGELOG_TOKEN }}
       - name: Extract changelog
         id: extract-changelog
-        uses: JC5/firefly-iii-dev@v34
+        uses: JC5/firefly-iii-dev@v36
         with:
           action: 'ff3:extract-changelog'
           output: 'output'
@@ -43,7 +43,7 @@ jobs:
           GH_TOKEN: ""
       - name: Replace version
         id: replace-version
-        uses: JC5/firefly-iii-dev@v34
+        uses: JC5/firefly-iii-dev@v36
         with:
           action: 'ff3:version'
           output: ''
@@ -53,7 +53,7 @@ jobs:
           FF_III_VERSION: ${{ github.event_name == 'schedule' && 'develop' || github.event.inputs.version }}
       - name: Generate JSON v1
         id: json-v1
-        uses: JC5/firefly-iii-dev@v34
+        uses: JC5/firefly-iii-dev@v36
         with:
           action: 'ff3:json-translations v1'
           output: ''
@@ -62,7 +62,7 @@ jobs:
           GH_TOKEN: ''
       - name: Generate JSON v2
         id: json-v2
-        uses: JC5/firefly-iii-dev@v34
+        uses: JC5/firefly-iii-dev@v36
         with:
           action: 'ff3:json-translations v2'
           output: ''
@@ -71,7 +71,7 @@ jobs:
           GH_TOKEN: ''
       - name: Code cleanup
         id: code-cleanup
-        uses: JC5/firefly-iii-dev@v34
+        uses: JC5/firefly-iii-dev@v36
         with:
           action: 'ff3:code'
           output: ''
@@ -80,12 +80,12 @@ jobs:
           GH_TOKEN: ''
       - name: Build new JS
         run: |
-          pwd
           npm install
+          npm update
           npm run build
       - name: Build old JS
         id: old-js
-        uses: JC5/firefly-iii-dev@v34
+        uses: JC5/firefly-iii-dev@v36
         with:
           action: 'ff3:old-js'
           output: ''
@@ -117,8 +117,14 @@ jobs:
           git commit -m "Auto commit for release '$version' on $(date +'%Y-%m-%d')" || true
           git push
 
-          # zip everything
+          # zip and tar everything
           zip -rq $zipName . -x "*.git*" "*.ci*" "*.github*" "*node_modules*" "*output.txt*"
+          touch $tarName
+          tar --exclude=$tarName --exclude='./.git' --exclude='./.ci' --exclude='./.github' --exclude='./node_modules' --exclude='./output.txt' -czf $tarName .
+
+          # add sha256 sum
+          sha256sum -b $zipName > $zipName.sha256
+          sha256sum -b $tarName > $tarName.sha256
 
           echo "Create default release."
           git tag -a $releaseName -m "Here be changelog"
