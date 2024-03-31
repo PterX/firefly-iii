@@ -112,7 +112,6 @@ jobs:
 
           git add -A
           git reset output.txt
-          rm output.txt 2>/dev/null
           git commit -m "Auto commit for release '$version' on $(date +'%Y-%m-%d')" || true
           git push
 
