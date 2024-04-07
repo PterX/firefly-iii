@@ -79,10 +79,10 @@ class HomeController extends Controller
             app('log')->error(sprintf('End could not parse date string "%s" so ignore it.', $stringEnd));
             $end = Carbon::now()->endOfMonth();
         }
-        if (false === $start) {
+        if (null === $start) {
             $start = Carbon::now()->startOfMonth();
         }
-        if (false === $end) {
+        if (null === $end) {
             $end = Carbon::now()->endOfMonth();
         }
 
@@ -120,33 +120,45 @@ class HomeController extends Controller
      */
     public function index(AccountRepositoryInterface $repository): mixed
     {
-        $types          = config('firefly.accountTypesByIdentifier.asset');
-        $count          = $repository->count($types);
+        $types = config('firefly.accountTypesByIdentifier.asset');
+        $count = $repository->count($types);
         Log::channel('audit')->info('User visits homepage.');
 
         if (0 === $count) {
             return redirect(route('new-user.index'));
         }
+
+        if ('v1' === (string)config('view.layout')) {
+            return $this->indexV1($repository);
+        }
+        if ('v2' === (string)config('view.layout')) {
+            return $this->indexV2();
+        }
+
+        throw new FireflyException('Invalid layout configuration');
+    }
+
+    private function indexV1(AccountRepositoryInterface $repository): mixed
+    {
+        $types          = config('firefly.accountTypesByIdentifier.asset');
+        $count          = $repository->count($types);
         $subTitle       = (string)trans('firefly.welcome_back');
         $transactions   = [];
-        $frontPage      = app('preferences')->getFresh('frontPageAccounts', $repository->getAccountsByType([AccountType::ASSET])->pluck('id')->toArray());
-        $frontPageArray = $frontPage->data;
-        if (!is_array($frontPageArray)) {
-            $frontPageArray = [];
+        $frontpage      = app('preferences')->getFresh('frontpageAccounts', $repository->getAccountsByType([AccountType::ASSET])->pluck('id')->toArray());
+        $frontpageArray = $frontpage->data;
+        if (!is_array($frontpageArray)) {
+            $frontpageArray = [];
         }
 
         /** @var Carbon $start */
-        $start          = session('start', today(config('app.timezone'))->startOfMonth());
-
         /** @var Carbon $end */
+        $start          = session('start', today(config('app.timezone'))->startOfMonth());
         $end            = session('end', today(config('app.timezone'))->endOfMonth());
-        $accounts       = $repository->getAccountsById($frontPageArray);
+        $accounts       = $repository->getAccountsById($frontpageArray);
         $today          = today(config('app.timezone'));
+        $accounts       = $accounts->sortBy('order'); // sort frontpage accounts by order
 
-        // sort frontpage accounts by order
-        $accounts       = $accounts->sortBy('order');
-
-        app('log')->debug('Frontpage accounts are ', $frontPageArray);
+        app('log')->debug('Frontpage accounts are ', $frontpageArray);
 
         /** @var BillRepositoryInterface $billRepository */
         $billRepository = app(BillRepositoryInterface::class);
@@ -165,5 +177,19 @@ class HomeController extends Controller
         event(new RequestedVersionCheckStatus($user));
 
         return view('index', compact('count', 'subTitle', 'transactions', 'billCount', 'start', 'end', 'today'));
+    }
+
+    private function indexV2(): mixed
+    {
+        $subTitle = (string)trans('firefly.welcome_back');
+
+        $start    = session('start', today(config('app.timezone'))->startOfMonth());
+        $end      = session('end', today(config('app.timezone'))->endOfMonth());
+
+        /** @var User $user */
+        $user     = auth()->user();
+        event(new RequestedVersionCheckStatus($user));
+
+        return view('index', compact('subTitle', 'start', 'end'));
     }
 }

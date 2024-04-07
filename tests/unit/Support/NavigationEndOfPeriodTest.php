@@ -58,9 +58,9 @@ final class NavigationEndOfPeriodTest extends TestCase
             'month'                         => ['frequency' => 'month', 'from' => Carbon::now(), 'expected' => Carbon::now()->addMonth()->subDay()->endOfDay()],
             '1M'                            => ['frequency' => '1M', 'from' => Carbon::now(), 'expected' => Carbon::now()->addMonth()->subDay()->endOfDay()],
             'monthly'                       => ['frequency' => 'monthly', 'from' => Carbon::now(), 'expected' => Carbon::now()->addMonth()->subDay()->endOfDay()],
-            '3M'                            => ['frequency' => '3M', 'from' => Carbon::now(), 'expected' => Carbon::now()->addQuarterNoOverflow()->subDay()->endOfDay()],
-            'quarter'                       => ['frequency' => 'quarter', 'from' => Carbon::now(), 'expected' => Carbon::now()->addQuarterNoOverflow()->subDay()->endOfDay()],
-            'quarterly'                     => ['frequency' => 'quarterly', 'from' => Carbon::now(), 'expected' => Carbon::now()->addQuarterNoOverflow()->subDay()->endOfDay()],
+            '3M'                            => ['frequency' => '3M', 'from' => Carbon::now(), 'expected' => Carbon::now()->addQuarter()->subDay()->endOfDay()],
+            'quarter'                       => ['frequency' => 'quarter', 'from' => Carbon::now(), 'expected' => Carbon::now()->addQuarter()->subDay()->endOfDay()],
+            'quarterly'                     => ['frequency' => 'quarterly', 'from' => Carbon::now(), 'expected' => Carbon::now()->addQuarter()->subDay()->endOfDay()],
             'year'                          => ['frequency' => 'year', 'from' => Carbon::now(), 'expected' => Carbon::now()->addYearNoOverflow()->subDay()->endOfDay()],
             'yearly'                        => ['frequency' => 'yearly', 'from' => Carbon::now(), 'expected' => Carbon::now()->addYearNoOverflow()->subDay()->endOfDay()],
             '1Y'                            => ['frequency' => '1Y', 'from' => Carbon::now(), 'expected' => Carbon::now()->addYearNoOverflow()->subDay()->endOfDay()],
@@ -77,15 +77,6 @@ final class NavigationEndOfPeriodTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider        provideDates
-     */
-    public function testGivenADateAndFrequencyWhenCalculateTheDateThenReturnsTheExpectedDateSuccessful(string $frequency, Carbon $from, Carbon $expected): void
-    {
-        $period = clone $this->navigation->endOfPeriod($from, $frequency);
-        self::assertSame($expected->toDateString(), $period->toDateString());
-    }
-
     public static function provideUnknownFrequencies(): iterable
     {
         return [
@@ -93,6 +84,15 @@ final class NavigationEndOfPeriodTest extends TestCase
             'unknown' => ['frequency' => 'unknown', 'from' => Carbon::now(), 'expected' => Carbon::now()->startOfDay()],
             'empty'   => ['frequency' => '', 'from' => Carbon::now(), 'expected' => Carbon::now()->startOfDay()],
         ];
+    }
+
+    /**
+     * @dataProvider        provideDates
+     */
+    public function testGivenADateAndFrequencyWhenCalculateTheDateThenReturnsTheExpectedDateSuccessful(string $frequency, Carbon $from, Carbon $expected): void
+    {
+        $period = clone $this->navigation->endOfPeriod($from, $frequency);
+        self::assertSame($expected->toDateString(), $period->toDateString());
     }
 
     /**

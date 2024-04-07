@@ -77,13 +77,11 @@ class BasicController extends Controller
                 $this->opsRepository     = app(OperationsRepositoryInterface::class);
 
                 $userGroup               = $this->validateUserGroup($request);
-                if (null !== $userGroup) {
-                    $this->abRepository->setUserGroup($userGroup);
-                    $this->accountRepository->setUserGroup($userGroup);
-                    $this->billRepository->setUserGroup($userGroup);
-                    $this->budgetRepository->setUserGroup($userGroup);
-                    $this->opsRepository->setUserGroup($userGroup);
-                }
+                $this->abRepository->setUserGroup($userGroup);
+                $this->accountRepository->setUserGroup($userGroup);
+                $this->billRepository->setUserGroup($userGroup);
+                $this->budgetRepository->setUserGroup($userGroup);
+                $this->opsRepository->setUserGroup($userGroup);
 
                 return $next($request);
             }
@@ -298,7 +296,7 @@ class BasicController extends Controller
             app('log')->debug(sprintf('Amount left is %s', $left));
 
             // how much left per day?
-            $days                    = (int) $today->diffInDays($end, true) + 1;
+            $days                    = (int)$today->diffInDays($end, true) + 1;
             $perDay                  = '0';
             $perDayNative            = '0';
             if (0 !== $days && bccomp($left, '0') > -1) {

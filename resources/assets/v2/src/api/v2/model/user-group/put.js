@@ -1,5 +1,5 @@
 /*
- * load-translations.js
+ * post.js
  * Copyright (c) 2023 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
@@ -18,12 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {format} from "date-fns";
+import {api} from "../../../../boot/axios";
 
-function getCacheKey(string, start, end) {
-    const cacheKey = format(start, 'y-MM-dd') + '_' + format(end, 'y-MM-dd') + '_' + string;
-    console.log('getCacheKey: ' + cacheKey);
-    return String(cacheKey);
+export default class Put {
+    put(submission, params) {
+        let url = '/api/v2/user-groups/' + parseInt(params.id);
+        return api.put(url, submission);
+    }
 }
-
-export {getCacheKey};

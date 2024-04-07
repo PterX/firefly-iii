@@ -242,6 +242,30 @@ class UserRepository implements UserRepositoryInterface
         return false;
     }
 
+    #[\Override]
+    public function getUserGroups(User $user): Collection
+    {
+        $memberships = $user->groupMemberships()->get();
+        $set         = [];
+        $collection  = new Collection();
+
+        /** @var GroupMembership $membership */
+        foreach ($memberships as $membership) {
+            /** @var null|UserGroup $group */
+            $group = $membership->userGroup()->first();
+            if (null !== $group) {
+                $groupId       = $group->id;
+                if (in_array($groupId, array_keys($set), true)) {
+                    continue;
+                }
+                $set[$groupId] = $group;
+            }
+        }
+        $collection->push(...$set);
+
+        return $collection;
+    }
+
     public function inviteUser(null|Authenticatable|User $user, string $email): InvitedUser
     {
         $now                  = today(config('app.timezone'));

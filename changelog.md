@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+
+## 6.1.14 - 2024-xx-xx
+
+### Changed
+- You will have to define again which asset accounts you want to see on the dashboard. Sorry about that.
+
+## 6.1.13 - 2024-04-01
+
+### Added
+
+- sha256 checksums for the release files
+- git HEAD added to the release files for easier validation
+
+### Changed
+
+- Updated pages in the `v2`-layout
+
+### Fixed
+
+- [Issue 8648](https://github.com/firefly-iii/firefly-iii/issues/8648) (Crashes during initial setup with PG 16 dbs) reported by @Lysholm
+- [Issue 8725](https://github.com/firefly-iii/firefly-iii/issues/8725) (API: Call to `api/v1/bills` without arguments fails) reported by @dreautall
+- [Issue 8732](https://github.com/firefly-iii/firefly-iii/issues/8732) (Error "Division by zero" when opening the "Budget" section) reported by @mrResident
+- [PR 8735](https://github.com/firefly-iii/firefly-iii/pull/8735) (Fix `Division error by zero` in budget views) reported by @mansuf
+
 ## 6.1.12 - 2024-03-21
 
 ### Fixed

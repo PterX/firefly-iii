@@ -24,6 +24,33 @@ import dates from "./shared/dates.js";
 
 let somethings = function() {
     return {
+        // notifications
+        // TODO duplicate code
+        notifications: {
+            error: {
+                show: false, text: '', url: '',
+            }, success: {
+                show: false, text: '', url: '',
+            }, wait: {
+                show: false, text: '',
+
+            }
+        },
+        // state of the form is stored in formState:
+        // TODO duplicate code
+        formStates: {
+            isSubmitting: false,
+            returnHereButton: false,
+            saveAsNewButton: false, // edit form only
+            resetButton: false,
+        },
+
+        // form behaviour
+        // TODO duplicate code
+        formBehaviour: {
+            formType: 'create', // or 'update'
+        },
+
         pageProperties: {},
         functionName() {
 

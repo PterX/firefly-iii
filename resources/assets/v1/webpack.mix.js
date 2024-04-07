@@ -1,6 +1,6 @@
 /*
  * webpack.mix.js
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2024 james@firefly-iii.org.
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -15,7 +15,7 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see https://www.gnu.org/licenses/.
  */
 
 let mix = require('laravel-mix');
@@ -34,14 +34,14 @@ mix.webpackConfig({
     }
 });
 
-mix.js('resources/assets/js/app.js', 'public/v1/js');
-mix.js('resources/assets/js/app_vue.js', 'public/v1/js').vue({version: 2});
-mix.js('resources/assets/js/create_transaction.js', 'public/v1/js').vue({version: 2});
-mix.js('resources/assets/js/edit_transaction.js', 'public/v1/js').vue({version: 2});
-mix.js('resources/assets/js/profile.js', 'public/v1/js').vue({version: 2});
-
-// webhooks
-mix.js('resources/assets/js/webhooks/index.js', 'public/v1/js/webhooks').vue({version: 2});
-mix.js('resources/assets/js/webhooks/create.js', 'public/v1/js/webhooks').vue({version: 2});
-mix.js('resources/assets/js/webhooks/edit.js', 'public/v1/js/webhooks').vue({version: 2});
-mix.js('resources/assets/js/webhooks/show.js', 'public/v1/js/webhooks').vue({version: 2});
+mix.js('src/app.js', 'build');
+mix.js('src/app_vue.js', 'build').vue({version: 2});
+mix.js('src/create_transaction.js', 'build').vue({version: 2});
+mix.js('src/edit_transaction.js', 'build').vue({version: 2});
+mix.js('src/profile.js', 'build').vue({version: 2});
+//
+// // webhooks
+mix.js('src/webhooks/index.js', 'build').vue({version: 2});
+mix.js('src/webhooks/create.js', 'build').vue({version: 2});
+mix.js('src/webhooks/edit.js', 'build').vue({version: 2});
+mix.js('src/webhooks/show.js', 'build').vue({version: 2}).copy('build','../../../public/v1/js')

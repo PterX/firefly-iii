@@ -26,6 +26,7 @@ namespace FireflyIII\Api\V2\Controllers\Model\Account;
 use FireflyIII\Api\V2\Controllers\Controller;
 use FireflyIII\Api\V2\Request\Model\Account\IndexRequest;
 use FireflyIII\Api\V2\Request\Model\Transaction\InfiniteListRequest;
+use FireflyIII\Enums\UserRoleEnum;
 use FireflyIII\Repositories\UserGroups\Account\AccountRepositoryInterface;
 use FireflyIII\Transformers\V2\AccountTransformer;
 use Illuminate\Http\JsonResponse;
@@ -33,9 +34,10 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class IndexController extends Controller
 {
-    public const string RESOURCE_KEY = 'accounts';
+    public const string RESOURCE_KEY                  = 'accounts';
 
     private AccountRepositoryInterface $repository;
+    protected array                    $acceptedRoles = [UserRoleEnum::READ_ONLY, UserRoleEnum::MANAGE_TRANSACTIONS];
 
     /**
      * AccountController constructor.
@@ -48,9 +50,7 @@ class IndexController extends Controller
                 $this->repository = app(AccountRepositoryInterface::class);
                 // new way of user group validation
                 $userGroup        = $this->validateUserGroup($request);
-                if (null !== $userGroup) {
-                    $this->repository->setUserGroup($userGroup);
-                }
+                $this->repository->setUserGroup($userGroup);
 
                 return $next($request);
             }

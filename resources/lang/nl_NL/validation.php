@@ -55,11 +55,11 @@ return [
     'reconciled_forbidden_field'      => 'Deze transactie is al afgestemd, dus je kan ":field" niet wijzigen',
     'deleted_user'                    => 'Je kan je niet registreren met dit e-mailadres.',
     'rule_trigger_value'              => 'Deze waarde is niet geldig voor de geselecteerde trigger.',
-    'rule_action_expression'          => 'Invalid expression. :error',
+    'rule_action_expression'          => 'Ongeldige expressie (foutmelding in het Engels): :error',
     'rule_action_value'               => 'Deze waarde is niet geldig voor de geselecteerde actie.',
     'file_already_attached'           => 'Het geuploade bestand ":name" is al gelinkt aan deze transactie.',
     'file_attached'                   => 'Bestand ":name" is succesvol geüpload.',
-    'file_zero'                       => 'The file is zero bytes in size.',
+    'file_zero'                       => 'Het bestand is nul bytes.',
     'must_exist'                      => 'Het ID in veld :attribute bestaat niet.',
     'all_accounts_equal'              => 'Alle rekeningen in dit veld moeten gelijk zijn.',
     'group_title_mandatory'           => 'Een groepstitel is verplicht wanneer er meer dan één transactie is.',
@@ -68,6 +68,8 @@ return [
     'invalid_selection'               => 'Ongeldige selectie.',
     'belongs_user'                    => 'Deze waarde hoort bij een object dat niet lijkt te bestaan.',
     'belongs_user_or_user_group'      => 'Deze waarde hoort bij een object dat niet bij deze financiële administratie hoort.',
+    'no_access_group'                 => 'The user has no access to this user group.',
+    'no_accepted_roles_defined'       => 'No access roles have been defined for this endpoint, access denied.',
     'at_least_one_transaction'        => 'Er is op zijn minst één transactie nodig.',
     'recurring_transaction_id'        => 'Er is op zijn minst één transactie nodig.',
     'need_id_to_match'                => 'Je moet dit item met een ID versturen, zodat de API het kan matchen.',
@@ -197,7 +199,7 @@ return [
  *
  */
 
-    'secure_password'                 => 'This is not a secure password. Please try again. For more information, visit https://bit.ly/FF3-password',
+    'secure_password'                 => 'Dit is geen veilig wachtwoord. Probeer het nog een keer. Zie ook: https://bit.ly/FF3-password',
     'valid_recurrence_rep_type'       => 'Dit is geen geldige herhaling voor periodieke transacties.',
     'valid_recurrence_rep_moment'     => 'Ongeldig herhaalmoment voor dit type herhaling.',
     'invalid_account_info'            => 'Ongeldige rekeninginformatie.',
@@ -300,6 +302,7 @@ return [
 
     // no access to administration:
     'no_access_user_group'            => 'Je hebt niet de juiste toegangsrechten voor deze administratie.',
+    'administration_owner_rename'     => 'Je kan je standaardgrootboek niet hernoemen.',
 ];
 
 /*

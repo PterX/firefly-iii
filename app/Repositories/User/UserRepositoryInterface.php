@@ -94,6 +94,8 @@ interface UserRepositoryInterface
      */
     public function getUserData(User $user): array;
 
+    public function getUserGroups(User $user): Collection;
+
     public function hasRole(null|Authenticatable|User $user, string $role): bool;
 
     public function inviteUser(null|Authenticatable|User $user, string $email): InvitedUser;

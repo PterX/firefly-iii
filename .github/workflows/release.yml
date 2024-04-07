@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release'
+        description: 'Release "v1.2.3" or "develop"'
         required: true
         default: 'develop'
   schedule:
-    - cron:  '0 3 * * MON,THU'
+    - cron: '0 3 * * MON,THU'
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
           extensions: mbstring, intl, zip, bcmath
       - name: Cleanup changelog
         id: cleanup-changelog
-        uses: JC5/firefly-iii-dev@v36
+        uses: JC5/firefly-iii-dev@v38
         with:
           action: 'ff3:changelog'
           output: ''
@@ -34,7 +34,7 @@ jobs:
           GH_TOKEN: ${{ secrets.CHANGELOG_TOKEN }}
       - name: Extract changelog
         id: extract-changelog
-        uses: JC5/firefly-iii-dev@v36
+        uses: JC5/firefly-iii-dev@v38
         with:
           action: 'ff3:extract-changelog'
           output: 'output'
@@ -43,7 +43,7 @@ jobs:
           GH_TOKEN: ""
       - name: Replace version
         id: replace-version
-        uses: JC5/firefly-iii-dev@v36
+        uses: JC5/firefly-iii-dev@v38
         with:
           action: 'ff3:version'
           output: ''
@@ -53,7 +53,7 @@ jobs:
           FF_III_VERSION: ${{ github.event_name == 'schedule' && 'develop' || github.event.inputs.version }}
       - name: Generate JSON v1
         id: json-v1
-        uses: JC5/firefly-iii-dev@v36
+        uses: JC5/firefly-iii-dev@v38
         with:
           action: 'ff3:json-translations v1'
           output: ''
@@ -62,7 +62,7 @@ jobs:
           GH_TOKEN: ''
       - name: Generate JSON v2
         id: json-v2
-        uses: JC5/firefly-iii-dev@v36
+        uses: JC5/firefly-iii-dev@v38
         with:
           action: 'ff3:json-translations v2'
           output: ''
@@ -71,27 +71,19 @@ jobs:
           GH_TOKEN: ''
       - name: Code cleanup
         id: code-cleanup
-        uses: JC5/firefly-iii-dev@v36
+        uses: JC5/firefly-iii-dev@v38
         with:
           action: 'ff3:code'
           output: ''
         env:
           FIREFLY_III_ROOT: /github/workspace
           GH_TOKEN: ''
-      - name: Build new JS
+      - name: Build JS
         run: |
           npm install
           npm update
-          npm run build
-      - name: Build old JS
-        id: old-js
-        uses: JC5/firefly-iii-dev@v36
-        with:
-          action: 'ff3:old-js'
-          output: ''
-        env:
-          FIREFLY_III_ROOT: /github/workspace
-          GH_TOKEN: ''
+          npm run prod  --workspace=v1
+          npm run build --workspace=v2
       - name: Run CI
         run: |
           rm -rf vendor composer.lock
@@ -101,24 +93,52 @@ jobs:
           .ci/phpcs.sh
       - name: Release
         run: |
+          # do some configuration
           sudo timedatectl set-timezone Europe/Amsterdam
           git config user.name github-actions
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git config advice.addIgnoredFile false
 
+          # set some variables
+          releaseName=$version
+          originalName=$version
+          zipName=FireflyIII-$version.zip
+          tarName=FireflyIII-$version.tar.gz
+
           [[ -z $(git status --untracked-files=normal --porcelain) ]] && echo "this branch is clean, no need to push..." && exit 0;
           releaseName=$version-$(date +'%Y%m%d')
           zipName=FireflyIII-develop.zip
 
+          # in both cases, if the release or tag already exists, add ".1" until it no longer exists.
+          tagFound=true
+          tagCount=1
+          while [ "$tagFound" = true ]
+          do
+            if [ $(git tag -l "$releaseName") ]; then
+              echo "Tag $releaseName exists already."
+              releaseName="$originalName"."$tagCount"
+              echo "Tag for release is now $releaseName"
+              tagCount=$((tagCount+1))
+            else
+             echo "Tag $releaseName does not exist, can continue"
+             tagFound=false
+            fi
+          done
+          echo "Will use tag and release name $releaseName."
+
+          # add all content, except output.txt (this contains the changelog and/or the download instructions)
+          echo 'Add all and reset output.txt'
           git add -A
           git reset output.txt
           git commit -m "Auto commit for release '$version' on $(date +'%Y-%m-%d')" || true
           git push
 
           # zip and tar everything
+          echo 'Zip and tar...'
           zip -rq $zipName . -x "*.git*" "*.ci*" "*.github*" "*node_modules*" "*output.txt*"
 
           # add sha256 sum
+          echo 'Sha sum ...'
           sha256sum -b $zipName > $zipName.sha256
 
           echo "Create default release."

@@ -63,6 +63,8 @@ interface AccountRepositoryInterface
      */
     public function getMetaValue(Account $account, string $field): ?string;
 
+    public function getUserGroup(): UserGroup;
+
     /**
      * Reset order types of the mentioned accounts.
      */

@@ -79,4 +79,12 @@ class UpdateController extends Controller
             ->header('Content-Type', self::CONTENT_TYPE)
         ;
     }
+
+    public function useUserGroup(UserGroup $userGroup): JsonResponse
+    {
+        // group validation is already in place, so can just update the user.
+        $this->repository->useUserGroup($userGroup);
+
+        return response()->json([], 204);
+    }
 }

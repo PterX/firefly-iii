@@ -128,7 +128,7 @@ class BudgetLimitController extends Controller
         $start    = Carbon::createFromFormat('Y-m-d', $request->get('start'));
         $end      = Carbon::createFromFormat('Y-m-d', $request->get('end'));
 
-        if (false === $start || false === $end) {
+        if (null === $start || null === $end) {
             return response()->json([]);
         }
 
@@ -235,12 +235,12 @@ class BudgetLimitController extends Controller
             new Collection([$budgetLimit->budget]),
             $budgetLimit->transactionCurrency
         );
+        $daysLeft                        = $this->activeDaysLeft($limit->start_date, $limit->end_date);
         $array['spent']                  = $spentArr[$budgetLimit->transactionCurrency->id]['sum'] ?? '0';
         $array['left_formatted']         = app('amount')->formatAnything($limit->transactionCurrency, bcadd($array['spent'], $array['amount']));
         $array['amount_formatted']       = app('amount')->formatAnything($limit->transactionCurrency, $limit['amount']);
-        $array['days_left']              = (string)$this->activeDaysLeft($limit->start_date, $limit->end_date);
-        // left per day:
-        $array['left_per_day']           = bcdiv(bcadd($array['spent'], $array['amount']), $array['days_left']);
+        $array['days_left']              = (string)$daysLeft;
+        $array['left_per_day']           = 0 === $daysLeft ? bcadd($array['spent'], $array['amount']) : bcdiv(bcadd($array['spent'], $array['amount']), $array['days_left']);
 
         // left per day formatted.
         $array['amount']                 = app('steam')->bcround($limit['amount'], $limit->transactionCurrency->decimal_places);

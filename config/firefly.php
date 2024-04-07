@@ -117,9 +117,9 @@ return [
         'expression_engine' => false,
         // see cer.php for exchange rates feature flag.
     ],
-    'version'                      => 'develop/2024-03-31',
+    'version'                      => 'develop/2024-04-07',
     'api_version'                  => '2.0.13',
-    'db_version'                   => 23,
+    'db_version'                   => 24,
 
     // generic settings
     'maxUploadSize'                => 1073741824, // 1 GB
@@ -215,11 +215,14 @@ return [
         'zoom_level' => env('MAP_DEFAULT_ZOOM', '6'),
     ],
 
+    // administration specific preferences
+    'admin_specific_prefs'         => ['frontpageAccounts', 'lastActivity'],
+
     // default user-related values
     'darkMode'                     => 'browser',
     'list_length'                  => 10, // to be removed if v1 is cancelled.
     'default_preferences'          => [
-        'frontPageAccounts'  => [],
+        'frontpageAccounts'  => [],
         'listPageSize'       => 50,
         'currencyPreference' => 'EUR',
         'language'           => 'en_US',

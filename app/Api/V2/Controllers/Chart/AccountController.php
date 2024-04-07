@@ -27,6 +27,7 @@ namespace FireflyIII\Api\V2\Controllers\Chart;
 use Carbon\Carbon;
 use FireflyIII\Api\V2\Controllers\Controller;
 use FireflyIII\Api\V2\Request\Chart\DashboardChartRequest;
+use FireflyIII\Enums\UserRoleEnum;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
@@ -46,6 +47,7 @@ class AccountController extends Controller
     use ValidatesUserGroupTrait;
 
     private AccountRepositoryInterface $repository;
+    protected array                    $acceptedRoles = [UserRoleEnum::READ_ONLY];
 
     public function __construct()
     {
@@ -54,9 +56,7 @@ class AccountController extends Controller
             function ($request, $next) {
                 $this->repository = app(AccountRepositoryInterface::class);
                 $userGroup        = $this->validateUserGroup($request);
-                if (null !== $userGroup) {
-                    $this->repository->setUserGroup($userGroup);
-                }
+                $this->repository->setUserGroup($userGroup);
 
                 return $next($request);
             }
@@ -98,14 +98,14 @@ class AccountController extends Controller
         // user's preferences
         if (0 === $accounts->count()) {
             $defaultSet = $this->repository->getAccountsByType([AccountType::ASSET, AccountType::DEFAULT])->pluck('id')->toArray();
-            $frontPage  = app('preferences')->get('frontPageAccounts', $defaultSet);
+            $frontpage  = app('preferences')->get('frontpageAccounts', $defaultSet);
 
-            if (!(is_array($frontPage->data) && count($frontPage->data) > 0)) {
-                $frontPage->data = $defaultSet;
-                $frontPage->save();
+            if (!(is_array($frontpage->data) && count($frontpage->data) > 0)) {
+                $frontpage->data = $defaultSet;
+                $frontpage->save();
             }
 
-            $accounts   = $this->repository->getAccountsById($frontPage->data);
+            $accounts   = $this->repository->getAccountsById($frontpage->data);
         }
 
         // both options are overruled by "preselected"
