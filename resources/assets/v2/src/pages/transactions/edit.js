@@ -72,12 +72,15 @@ let transactions = function () {
             resetButton: true,
             rulesButton: true,
             webhooksButton: true,
+
+
         },
 
         // form behaviour during transaction
         formBehaviour: {
             formType: 'edit',
             foreignCurrencyEnabled: true,
+            categorySelectVisible: false,
         },
 
         // form data (except transactions) is stored in formData
@@ -109,6 +112,14 @@ let transactions = function () {
                 show: false, text: '',
 
             }
+        },
+
+        keyUpFromCategory(e) {
+            if (e.key === 'Enter' && false === this.formBehaviour.categorySelectVisible) {
+                this.submitTransaction();
+                return;
+            }
+            this.formBehaviour.categorySelectVisible = document.querySelector('input.ac-category').nextSibling.classList.contains('show');
         },
 
         // submit the transaction form.

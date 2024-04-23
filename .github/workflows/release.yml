@@ -25,7 +25,7 @@ jobs:
           extensions: mbstring, intl, zip, bcmath
       - name: Cleanup changelog
         id: cleanup-changelog
-        uses: JC5/firefly-iii-dev@v38
+        uses: JC5/firefly-iii-dev@main
         with:
           action: 'ff3:changelog'
           output: ''
@@ -34,7 +34,7 @@ jobs:
           GH_TOKEN: ${{ secrets.CHANGELOG_TOKEN }}
       - name: Extract changelog
         id: extract-changelog
-        uses: JC5/firefly-iii-dev@v38
+        uses: JC5/firefly-iii-dev@main
         with:
           action: 'ff3:extract-changelog'
           output: 'output'
@@ -43,7 +43,7 @@ jobs:
           GH_TOKEN: ""
       - name: Replace version
         id: replace-version
-        uses: JC5/firefly-iii-dev@v38
+        uses: JC5/firefly-iii-dev@main
         with:
           action: 'ff3:version'
           output: ''
@@ -53,7 +53,7 @@ jobs:
           FF_III_VERSION: ${{ github.event_name == 'schedule' && 'develop' || github.event.inputs.version }}
       - name: Generate JSON v1
         id: json-v1
-        uses: JC5/firefly-iii-dev@v38
+        uses: JC5/firefly-iii-dev@main
         with:
           action: 'ff3:json-translations v1'
           output: ''
@@ -62,7 +62,7 @@ jobs:
           GH_TOKEN: ''
       - name: Generate JSON v2
         id: json-v2
-        uses: JC5/firefly-iii-dev@v38
+        uses: JC5/firefly-iii-dev@main
         with:
           action: 'ff3:json-translations v2'
           output: ''
@@ -71,7 +71,7 @@ jobs:
           GH_TOKEN: ''
       - name: Code cleanup
         id: code-cleanup
-        uses: JC5/firefly-iii-dev@v38
+        uses: JC5/firefly-iii-dev@main
         with:
           action: 'ff3:code'
           output: ''
@@ -87,10 +87,14 @@ jobs:
       - name: Run CI
         run: |
           rm -rf vendor composer.lock
-          composer validate --strict
           composer update --no-dev --no-scripts --no-plugins -q
           sudo chown -R runner:docker resources/lang
           .ci/phpcs.sh
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
       - name: Release
         run: |
           # do some configuration

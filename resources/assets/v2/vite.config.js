@@ -21,6 +21,7 @@
 import {defineConfig} from 'vite';
 import laravel from 'laravel-vite-plugin';
 import manifestSRI from 'vite-plugin-manifest-sri';
+import * as fs from "fs";
 
 const host = '127.0.0.1';
 
@@ -30,55 +31,65 @@ function manualChunks(id) {
     }
 }
 
-export default defineConfig({
-    base: './',
-    build: {
-        rollupOptions: {
-            output: {
-                manualChunks,
+export default defineConfig(({command, mode, isSsrBuild, isPreview}) => {
+
+    let https = null;
+    if (command === 'serve') {
+        https = {
+            key: fs.readFileSync(`/sites/vm/tls-certificates/wildcard.sd.internal.key`),
+            cert: fs.readFileSync(`/sites/vm/tls-certificates/wildcard.sd.internal.crt`),
+        };
+    }
+
+    return {
+        base: './',
+        build: {
+            rollupOptions: {
+                output: {
+                    manualChunks,
+                },
+            }
+        },
+        plugins: [
+            laravel({
+                input: [
+                    // css
+                    'src/sass/app.scss',
+
+                    // dashboard
+                    'src/pages/dashboard/dashboard.js',
+
+                    // accounts
+                    'src/pages/accounts/index.js',
+
+                    // administrations
+                    'src/pages/administrations/index.js',
+                    'src/pages/administrations/create.js',
+                    'src/pages/administrations/edit.js',
+
+                    // transactions
+                    'src/pages/transactions/create.js',
+                    'src/pages/transactions/edit.js',
+                    'src/pages/transactions/show.js',
+                    'src/pages/transactions/index.js',
+                ],
+                publicDirectory: '../../../public',
+                refresh: true,
+            }),
+            //manifestSRI(),
+
+        ],
+
+
+        server: {
+            watch: {
+                usePolling: true,
             },
-        }
-    },
-    plugins: [
-        laravel({
-            input: [
-                // css
-                'src/sass/app.scss',
-
-                // dashboard
-                'src/pages/dashboard/dashboard.js',
-
-                // accounts
-                'src/pages/accounts/index.js',
-
-                // administrations
-                'src/pages/administrations/index.js',
-                'src/pages/administrations/create.js',
-                'src/pages/administrations/edit.js',
-
-                // transactions
-                'src/pages/transactions/create.js',
-                'src/pages/transactions/edit.js',
-                'src/pages/transactions/show.js',
-                'src/pages/transactions/index.js',
-            ],
-            publicDirectory: '../../../public',
-            refresh: true,
-        }),
-        //manifestSRI(),
-
-    ],
-
-
-    server: {
-        usePolling: true,
-        allowedHosts: '*.sd.internal',
-        host: '0.0.0.0',
-        hmr: {host},
-        cors: true
-        // https: {
-        //     key: fs.readFileSync(`/Users/sander/Sites/vm/tls-certificates/wildcard.sd.local.key`),
-        //     cert: fs.readFileSync(`/Users/sander/Sites/vm/tls-certificates/wildcard.sd.local.crt`),
-        // },
-    },
+            host: '10.0.0.15',
+            // hmr: {
+            //     protocol: 'wss',
+            // },
+            https: https,
+        },
+    }
 });

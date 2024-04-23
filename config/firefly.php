@@ -117,8 +117,8 @@ return [
         'expression_engine' => false,
         // see cer.php for exchange rates feature flag.
     ],
-    'version'                      => 'develop/2024-04-07',
-    'api_version'                  => '2.0.13',
+    'version'                      => '6.1.14',
+    'api_version'                  => '2.0.14',
     'db_version'                   => 24,
 
     // generic settings
@@ -206,7 +206,6 @@ return [
 
     // web configuration:
     'trusted_proxies'              => env('TRUSTED_PROXIES', ''),
-    'layout'                       => envNonEmpty('FIREFLY_III_LAYOUT', 'v1'),
 
     // map configuration
     'default_location'             => [
@@ -925,7 +924,7 @@ return [
     'sorting'                      => [
         'allowed' => [
             'transactions' => ['description', 'amount'],
-            'accounts'     => ['name', 'active', 'iban', 'balance', 'last_activity'],
+            'accounts'     => ['name', 'active', 'iban', 'balance', 'last_activity', 'balance_difference'],
         ],
     ],
 ];

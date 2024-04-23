@@ -1,18 +1,19 @@
 {
     "name": "v2",
     "private": true,
+    "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
+        "build": "vite build --emptyOutDir",
         "postinstall": "patch-package --error-on-fail"
     },
     "devDependencies": {
         "axios": "^1.6.8",
-        "laravel-vite-plugin": "^0.8.1",
+        "laravel-vite-plugin": "^1.0.2",
         "patch-package": "^8.0.0",
-        "sass": "^1.72.0",
-        "vite": "^4.5.3",
-        "vite-plugin-manifest-sri": "^0.1.0"
+        "sass": "^1.75.0",
+        "vite": "^5",
+        "vite-plugin-manifest-sri": "^0.2.0"
     },
     "dependencies": {
         "@ag-grid-community/client-side-row-model": "^31.0.3",
@@ -30,7 +31,7 @@
         "chartjs-adapter-date-fns": "^3.0.0",
         "chartjs-chart-sankey": "^0.12.0",
         "date-fns": "^3.6.0",
-        "i18next": "^23.10.1",
+        "i18next": "^23.11.2",
         "i18next-chained-backend": "^4.6.2",
         "i18next-http-backend": "^2.4.2",
         "i18next-localstorage-backend": "^4.2.0",

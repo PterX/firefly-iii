@@ -3,11 +3,27 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-
-## 6.1.14 - 2024-xx-xx
+## 6.1.14 - 2024-04-24
 
 ### Changed
-- You will have to define again which asset accounts you want to see on the dashboard. Sorry about that.
+- You may have to define again which asset accounts you want to see on the dashboard. Sorry about that.
+- Expanded some database models.
+- Limit the number of error messages Firefly III will send (so Mailgun keeps liking me).
+- [PR 8746](https://github.com/firefly-iii/firefly-iii/pull/8746) (Set date to now when cloning journal) reported by @imlonghao
+
+### Fixed
+
+- [Issue 8748](https://github.com/firefly-iii/firefly-iii/issues/8748) (Release tarballs mistakenly include the `.zip` artifact) reported by @sudoBash418
+- [Discussion 8750](https://github.com/orgs/firefly-iii/discussions/8750) (API To change  transaction fails to find destination_id) started by @soloam 
+- [Issue 8779](https://github.com/firefly-iii/firefly-iii/issues/8779) (Change Password Form not working ≥  6.1.11) reported by @jemtz-deleon
+- [Issue 8781](https://github.com/firefly-iii/firefly-iii/issues/8781) (Bill information missing in /api/v1/search/transactions responses) reported by @daanvanberkel
+- [Issue 8752](https://github.com/firefly-iii/firefly-iii/issues/8752) (Transactions reorder not work (error 404)) reported by @BoGnY
+- [Issue 8613](https://github.com/firefly-iii/firefly-iii/issues/8613) (Some minor color issues) reported by @rumpff
+- [Issue 8776](https://github.com/firefly-iii/firefly-iii/issues/8776) (report-data/category/expenses has wrong sums with specific date range) reported by @bouil
+
+### API
+
+- [Issue 8804](https://github.com/firefly-iii/firefly-iii/issues/8804) (Unable to create rules with negation via API) reported by @tailg8nj
 
 ## 6.1.13 - 2024-04-01
 

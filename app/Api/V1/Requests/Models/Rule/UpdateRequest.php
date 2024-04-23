@@ -81,10 +81,12 @@ class UpdateRequest extends FormRequest
         if (is_array($triggers)) {
             foreach ($triggers as $trigger) {
                 $active         = array_key_exists('active', $trigger) ? $trigger['active'] : true;
+                $prohibited     = array_key_exists('prohibited', $trigger) ? $trigger['prohibited'] : false;
                 $stopProcessing = array_key_exists('stop_processing', $trigger) ? $trigger['stop_processing'] : false;
                 $return[]       = [
                     'type'            => $trigger['type'],
                     'value'           => $trigger['value'],
+                    'prohibited'      => $prohibited,
                     'active'          => $active,
                     'stop_processing' => $stopProcessing,
                 ];

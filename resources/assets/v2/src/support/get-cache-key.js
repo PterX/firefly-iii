@@ -23,7 +23,7 @@ import store from "store";
 
 function getCacheKey(string, start, end) {
     const localValue = store.get('lastActivity');
-    const cacheKey = format(start, 'y-MM-dd') + '_' + format(end, 'y-MM-dd') + '_' + string + localValue;
+    const cacheKey = 'dcx' + format(start, 'yMMdd')+ format(end, 'yMMdd') + string + localValue;
     console.log('getCacheKey: ' + cacheKey);
     return String(cacheKey);
 }

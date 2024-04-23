@@ -25,6 +25,7 @@ namespace FireflyIII\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Vite;
+use Barryvdh\Debugbar\Facades\Debugbar;
 
 /**
  * Class SecureHeaders
@@ -43,6 +44,9 @@ class SecureHeaders
         // generate and share nonce.
         $nonce              = base64_encode(random_bytes(16));
         Vite::useCspNonce($nonce);
+        if (class_exists('Barryvdh\Debugbar\Facades\Debugbar')) {
+            Debugbar::getJavascriptRenderer()->setCspNonce($nonce);
+        }
         app('view')->share('JS_NONCE', $nonce);
 
         $response           = $next($request);
@@ -55,14 +59,29 @@ class SecureHeaders
             "base-uri 'self'",
             "font-src 'self' data:",
             sprintf("connect-src 'self' %s", $trackingScriptSrc),
-            sprintf("img-src 'self' 'nonce-%1s'", $nonce),
+            sprintf("img-src 'self' data: 'nonce-%1s' ", $nonce),
             "manifest-src 'self'",
         ];
 
+        // overrule in development mode
+        if (true === env('IS_LOCAL_DEV')) {
+            $csp = [
+                "default-src 'none'",
+                "object-src 'none'",
+                sprintf("script-src 'unsafe-eval' 'strict-dynamic' 'nonce-%1s' https://firefly.sd.internal/_debugbar/assets", $nonce),
+                "style-src 'unsafe-inline' 'self' https://10.0.0.15:5173/",
+                "base-uri 'self'",
+                "font-src 'self' data: https://10.0.0.15:5173/",
+                sprintf("connect-src 'self' %s https://10.0.0.15:5173/ wss://10.0.0.15:5173/", $trackingScriptSrc),
+                sprintf("img-src 'self' data: 'nonce-%1s'", $nonce),
+                "manifest-src 'self'",
+            ];
+        }
+
         $route              = $request->route();
         $customUrl          = '';
-        $authGuard          = (string)config('firefly.authentication_guard');
-        $logoutUrl          = (string)config('firefly.custom_logout_url');
+        $authGuard          = (string) config('firefly.authentication_guard');
+        $logoutUrl          = (string) config('firefly.custom_logout_url');
         if ('remote_user_guard' === $authGuard && '' !== $logoutUrl) {
             $customUrl = $logoutUrl;
         }
@@ -110,8 +129,8 @@ class SecureHeaders
      */
     private function getTrackingScriptSource(): string
     {
-        if ('' !== (string)config('firefly.tracker_site_id') && '' !== (string)config('firefly.tracker_url')) {
-            return (string)config('firefly.tracker_url');
+        if ('' !== (string) config('firefly.tracker_site_id') && '' !== (string) config('firefly.tracker_url')) {
+            return (string) config('firefly.tracker_url');
         }
 
         return '';

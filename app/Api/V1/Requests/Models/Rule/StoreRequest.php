@@ -71,8 +71,9 @@ class StoreRequest extends FormRequest
         if (is_array($triggers)) {
             foreach ($triggers as $trigger) {
                 $return[] = [
-                    'type'            => $trigger['type'],
-                    'value'           => $trigger['value'],
+                    'type'            => $trigger['type'] ?? '',
+                    'value'           => $trigger['value'] ?? null,
+                    'prohibited'      => $this->convertBoolean((string)($trigger['prohibited'] ?? 'false')),
                     'active'          => $this->convertBoolean((string)($trigger['active'] ?? 'true')),
                     'stop_processing' => $this->convertBoolean((string)($trigger['stop_processing'] ?? 'false')),
                 ];
