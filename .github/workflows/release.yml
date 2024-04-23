@@ -90,11 +90,6 @@ jobs:
           composer update --no-dev --no-scripts --no-plugins -q
           sudo chown -R runner:docker resources/lang
           .ci/phpcs.sh
-      - name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v6
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
       - name: Release
         run: |
           # do some configuration
