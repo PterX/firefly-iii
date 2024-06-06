@@ -56,4 +56,5 @@ interface SearchInterface
     public function setPage(int $page): void;
 
     public function setUser(User $user): void;
+    public function getGroups(): Collection;
 }

@@ -2704,6 +2704,11 @@ class OperatorQuerySearch implements SearchInterface
         return $this->collector->getPaginatedGroups();
     }
 
+    public function getGroups(): Collection
+    {
+        return $this->collector->getGroups();
+    }
+
     private function parseTagInstructions(): void
     {
         app('log')->debug('Now in parseTagInstructions()');

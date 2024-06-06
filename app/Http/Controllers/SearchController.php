@@ -114,9 +114,10 @@ class SearchController extends Controller
         $parameters = ['search' => $fullQuery];
         $url        = route('search.index').'?'.http_build_query($parameters);
         $groups->setPath($url);
+        $searchAmount    = app('steam')->searchamount($searcher);
 
         try {
-            $html = view('search.search', compact('groups', 'hasPages', 'searchTime'))->render();
+            $html = view('search.search', compact('groups', 'hasPages', 'searchTime', 'searchAmount'))->render();
         } catch (\Throwable $e) {
             app('log')->error(sprintf('Cannot render search.search: %s', $e->getMessage()));
             app('log')->error($e->getTraceAsString());

@@ -334,7 +334,7 @@ return [
     'search'                                              => '搜索',
     'search_query'                                        => '搜索语句',
     'search_found_transactions'                           => 'Firefly III 找到 :count 条交易，用时 :time 秒。|Firefly III 找到 :count 条交易，用时 :time 秒。',
-    'search_found_more_transactions'                      => 'Firefly III 找到超过 :count 条交易，用时 :time 秒。',
+    'search_found_more_transactions'                      => 'Firefly III 找到超过 :count 条交易，用时 :time 秒 余额 :amount 。',
     'search_for_query'                                    => 'Firefly III 正在搜索包含 <span class="text-info">:query</span> 的交易',
     'invalid_operators_list'                              => '搜索参数无效，已忽略。',
 

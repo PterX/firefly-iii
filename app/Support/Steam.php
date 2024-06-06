@@ -34,6 +34,7 @@ use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Support\Http\Api\ExchangeRateConverter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use FireflyIII\Support\Search\SearchInterface;
 
 /**
  * Class Steam.
@@ -212,6 +213,28 @@ class Steam
 
         $cache->store($balance);
 
+        return $balance;
+    }
+
+    /**
+     * Gets amount for search result
+     *
+     * @throws FireflyException
+     */
+    public function searchamount(SearchInterface $searcher, Carbon $date, ?TransactionCurrency $currency = null): string
+    {
+        $searcher->setPage(0);
+        $groups     = $searcher->getGroups();
+
+        $balance = 0;
+        foreach ($groups as $group) {
+            foreach ($group['transactions'] as $transactions) {
+                $nativeBalance  = $this->sumTransactions($transactions, 'amount');
+                $foreignBalance = $this->sumTransactions($transactions, 'foreign_amount');
+
+                $balance        = bcadd($balance, bcadd($nativeBalance, $foreignBalance));
+            }
+        }
         return $balance;
     }
 
