@@ -224,7 +224,7 @@ class Steam
     public function searchamount(SearchInterface $searcher, Carbon $date, ?TransactionCurrency $currency = null): string
     {
         $searcher->setPage(0);
-        $groups     = $searcher->getGroups();
+        $groups  = $searcher->getGroups();
 
         $balance = 0;
         foreach ($groups as $group) {
@@ -235,6 +235,7 @@ class Steam
                 $balance        = bcadd($balance, bcadd($nativeBalance, $foreignBalance));
             }
         }
+
         return $balance;
     }
 

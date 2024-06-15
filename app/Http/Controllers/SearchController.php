@@ -98,23 +98,23 @@ class SearchController extends Controller
      */
     public function search(Request $request, SearchInterface $searcher): JsonResponse
     {
-        $entry      = $request->get('query');
+        $entry        = $request->get('query');
         if (!is_scalar($entry)) {
             $entry = '';
         }
-        $fullQuery  = (string)$entry;
-        $page       = 0 === (int)$request->get('page') ? 1 : (int)$request->get('page');
+        $fullQuery    = (string)$entry;
+        $page         = 0 === (int)$request->get('page') ? 1 : (int)$request->get('page');
 
         $searcher->parseQuery($fullQuery);
 
         $searcher->setPage($page);
-        $groups     = $searcher->searchTransactions();
-        $hasPages   = $groups->hasPages();
-        $searchTime = round($searcher->searchTime(), 3); // in seconds
-        $parameters = ['search' => $fullQuery];
-        $url        = route('search.index').'?'.http_build_query($parameters);
+        $groups       = $searcher->searchTransactions();
+        $hasPages     = $groups->hasPages();
+        $searchTime   = round($searcher->searchTime(), 3); // in seconds
+        $parameters   = ['search' => $fullQuery];
+        $url          = route('search.index').'?'.http_build_query($parameters);
         $groups->setPath($url);
-        $searchAmount    = app('steam')->searchamount($searcher);
+        $searchAmount = app('steam')->searchamount($searcher);
 
         try {
             $html = view('search.search', compact('groups', 'hasPages', 'searchTime', 'searchAmount'))->render();
