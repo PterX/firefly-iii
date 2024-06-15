@@ -117,8 +117,8 @@ return [
         'expression_engine' => false,
         // see cer.php for exchange rates feature flag.
     ],
-    'version'                      => 'develop/2024-04-23',
-    'api_version'                  => '2.0.14',
+    'version'                      => 'develop/2024-06-15',
+    'api_version'                  => '2.1.0',
     'db_version'                   => 24,
 
     // generic settings
@@ -920,11 +920,31 @@ return [
     // preselected account lists possibilities:
     'preselected_accounts'         => ['all', 'assets', 'liabilities'],
 
-    // allowed sort columns for API's
+    // allowed filters (search) for APIs
+    'filters'                      => [
+        'allowed' => [
+            'accounts' => [
+                'name'               => 'string',
+                'active'             => 'boolean',
+                'iban'               => 'iban',
+                'balance'            => 'numeric',
+                'last_activity'      => 'date',
+                'balance_difference' => 'numeric',
+            ],
+        ],
+    ],
+
+    // allowed sort columns for APIs
     'sorting'                      => [
         'allowed' => [
             'transactions' => ['description', 'amount'],
-            'accounts'     => ['name', 'active', 'iban', 'balance', 'last_activity', 'balance_difference'],
+            'accounts'     => ['name', 'active', 'iban', 'balance', 'last_activity', 'balance_difference', 'current_debt'],
         ],
+    ],
+    'full_data_set'                => [
+        'account' => ['last_activity', 'balance_difference', 'current_balance', 'current_debt'],
+    ],
+    'valid_query_filters'          => [
+        'account' => ['name', 'iban', 'active'],
     ],
 ];

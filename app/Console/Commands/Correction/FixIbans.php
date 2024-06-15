@@ -60,15 +60,13 @@ class FixIbans extends Command
     {
         /** @var Account $account */
         foreach ($accounts as $account) {
-            $iban = $account->iban;
-            if (str_contains($iban, ' ')) {
-                $iban = app('steam')->filterSpaces((string)$account->iban);
-                if ('' !== $iban) {
-                    $account->iban = $iban;
-                    $account->save();
-                    $this->friendlyInfo(sprintf('Removed spaces from IBAN of account #%d', $account->id));
-                    ++$this->count;
-                }
+            $iban    = (string) $account->iban;
+            $newIban = app('steam')->filterSpaces($iban);
+            if ('' !== $iban && $iban !== $newIban) {
+                $account->iban = $newIban;
+                $account->save();
+                $this->friendlyInfo(sprintf('Removed spaces from IBAN of account #%d', $account->id));
+                ++$this->count;
             }
         }
     }
@@ -81,7 +79,7 @@ class FixIbans extends Command
         foreach ($accounts as $account) {
             $userId = $account->user_id;
             $set[$userId] ??= [];
-            $iban   = (string)$account->iban;
+            $iban   = (string) $account->iban;
             if ('' === $iban) {
                 continue;
             }

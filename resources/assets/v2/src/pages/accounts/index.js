@@ -24,16 +24,14 @@ import i18next from "i18next";
 import {format} from "date-fns";
 import formatMoney from "../../util/format-money.js";
 
-import '@ag-grid-community/styles/ag-grid.css';
-import '@ag-grid-community/styles/ag-theme-alpine.css';
-import '../../css/grid-ff3-theme.css';
 import Get from "../../api/v2/model/account/get.js";
 import Put from "../../api/v2/model/account/put.js";
 import AccountRenderer from "../../support/renderers/AccountRenderer.js";
 import {showInternalsButton} from "../../support/page-settings/show-internals-button.js";
 import {showWizardButton} from "../../support/page-settings/show-wizard-button.js";
-import {getVariable} from "../../store/get-variable.js";
 import {setVariable} from "../../store/set-variable.js";
+import {getVariables} from "../../store/get-variables.js";
+import pageNavigation from "../../support/page-navigation.js";
 
 
 // set type from URL
@@ -43,6 +41,7 @@ const type = urlParts[urlParts.length - 1];
 
 let sortingColumn = '';
 let sortDirection = '';
+let page = 1;
 
 // get sort parameters
 const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -50,10 +49,14 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
 });
 sortingColumn = params.column ?? '';
 sortDirection = params.direction ?? '';
+page = parseInt(params.page ?? 1);
 
 
 showInternalsButton();
 showWizardButton();
+
+// TODO currency conversion
+// TODO page cleanup and recycle for transaction lists.
 
 let index = function () {
     return {
@@ -70,8 +73,16 @@ let index = function () {
         },
         totalPages: 1,
         page: 1,
+        pageUrl: '',
         filters: {
-            active: 'both',
+            active: null,
+            name: null,
+        },
+        pageOptions: {
+            isLoading: true,
+            groupedAccounts: true,
+            sortingColumn: sortingColumn,
+            sortDirection: sortDirection,
         },
 
         // available columns:
@@ -131,23 +142,76 @@ let index = function () {
             },
         },
         editors: {},
-        sortingColumn: sortingColumn,
-        sortDirection: sortDirection,
         accounts: [],
+        lastClickedFilter: '',
+        lastFilterInput: '',
+        goToPage(page) {
+            this.page = page;
+            this.loadAccounts();
+        },
+        applyFilter() {
+            this.filters[this.lastClickedFilter] = this.lastFilterInput;
+            this.page = 1;
+            setVariable(this.getPreferenceKey('filters'), this.filters);
 
+            // hide modal
+            window.bootstrap.Modal.getInstance(document.getElementById('filterModal')).hide();
+            this.loadAccounts();
+        },
+        saveGroupedAccounts() {
+            setVariable(this.getPreferenceKey('grouped'), this.pageOptions.groupedAccounts);
+            this.page = 1;
+            this.loadAccounts();
+        },
+        removeFilter(field) {
+            this.filters[field] = null;
+            this.page = 1;
+            setVariable(this.getPreferenceKey('filters'), this.filters);
+            this.loadAccounts();
+        },
+        hasFilters() {
+            return this.filters.name !== null;
+        },
+        showFilterDialog(field) {
+            this.lastFilterInput = this.filters[field] ?? '';
+            this.lastClickedFilter = field;
+            document.getElementById('filterInput').focus();
+        },
         accountRole(roleName) {
             return i18next.t('firefly.account_role_' + roleName);
         },
+        getPreferenceKey(name) {
+            return 'acc_index_' + type + '_' + name;
+        },
+        pageNavigation() {
+            return pageNavigation(this.totalPages, this.page, this.generatePageUrl(false));
+        },
 
         sort(column) {
-            this.sortingColumn = column;
-            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-            const url = './accounts/' + type + '?column=' + column + '&direction=' + this.sortDirection;
+            this.page = 1;
+            this.pageOptions.sortingColumn = column;
+            this.pageOptions.sortDirection = this.pageOptions.sortDirection === 'asc' ? 'desc' : 'asc';
 
-            window.history.pushState({}, "", url);
+            this.updatePageUrl();
+
+            // get sort column
+            setVariable(this.getPreferenceKey('sc'), this.pageOptions.sortingColumn);
+            setVariable(this.getPreferenceKey('sd'), this.pageOptions.sortDirection);
 
             this.loadAccounts();
             return false;
+        },
+        updatePageUrl() {
+            this.pageUrl = this.generatePageUrl(true);
+
+            window.history.pushState({}, "", this.pageUrl);
+        },
+        generatePageUrl(includePageNr) {
+            let url = './accounts/' + type + '?column=' + this.pageOptions.sortingColumn + '&direction=' + this.pageOptions.sortDirection + '&page=';
+            if (includePageNr) {
+                return url + this.page
+            }
+            return url;
         },
 
         formatMoney(amount, currencyCode) {
@@ -165,26 +229,70 @@ let index = function () {
                 }
             }
             console.log('New settings', newSettings);
-            setVariable('accts_columns_' + type, newSettings);
+            setVariable(this.getPreferenceKey('columns'), newSettings);
         },
 
         init() {
+            // modal filter thing
+            const myModalEl = document.getElementById('filterModal')
+            myModalEl.addEventListener('shown.bs.modal', event => {
+                document.getElementById('filterInput').focus();
+            })
+
+
+            // some opts
+            this.pageOptions.isLoading = true;
             this.notifications.wait.show = true;
-            this.notifications.wait.text = i18next.t('firefly.wait_loading_data')
+            this.page = page;
+            this.notifications.wait.text = i18next.t('firefly.wait_loading_data');
 
-            const key = 'accts_columns_' + type;
-            const defaultValue = {"drag_and_drop": false};
-
-            getVariable(key, defaultValue).then((response) => {
-                for (let k in response) {
-                    if (response.hasOwnProperty(k) && this.tableColumns.hasOwnProperty(k)) {
-                        this.tableColumns[k].enabled = response[k] ?? true;
+            // start by collecting all preferences, create + put in the local store.
+            getVariables([
+                {name: this.getPreferenceKey('columns'), default: {"drag_and_drop": false}},
+                {name: this.getPreferenceKey('sc'), default: ''},
+                {name: this.getPreferenceKey('sd'), default: ''},
+                {name: this.getPreferenceKey('filters'), default: this.filters},
+                {name: this.getPreferenceKey('grouped'), default: true},
+            ]).then((res) => {
+                // process columns:
+                for (let k in res[0]) {
+                    if (res[0].hasOwnProperty(k) && this.tableColumns.hasOwnProperty(k)) {
+                        this.tableColumns[k].enabled = res[0][k] ?? true;
                     }
                 }
-            }).then(() => {
+
+                // process sorting column:
+                this.pageOptions.sortingColumn = '' === this.pageOptions.sortingColumn ? res[1] : this.pageOptions.sortingColumn;
+
+                // process sort direction
+                this.pageOptions.sortDirection = '' === this.pageOptions.sortDirection ? res[2] : this.pageOptions.sortDirection;
+
+                // filters
+                for (let k in res[3]) {
+                    if (res[3].hasOwnProperty(k) && this.filters.hasOwnProperty(k)) {
+                        this.filters[k] = res[3][k];
+                    }
+                }
+
+                // group accounts
+                this.pageOptions.groupedAccounts = res[4];
+
                 this.loadAccounts();
             });
-
+        },
+        saveActiveFilter(e) {
+            this.page = 1;
+            if ('both' === e.currentTarget.value) {
+                this.filters.active = null;
+            }
+            if ('active' === e.currentTarget.value) {
+                this.filters.active = true;
+            }
+            if ('inactive' === e.currentTarget.value) {
+                this.filters.active = false;
+            }
+            setVariable(this.getPreferenceKey('filters'), this.filters);
+            this.loadAccounts();
         },
         renderObjectValue(field, account) {
             let renderer = new AccountRenderer();
@@ -228,36 +336,45 @@ let index = function () {
             this.accounts[index].nameEditorVisible = true;
         },
         loadAccounts() {
-
+            this.pageOptions.isLoading = true;
             // sort instructions
-            const sorting = [{column: this.sortingColumn, direction: this.sortDirection}];
+            const sorting = [{column: this.pageOptions.sortingColumn, direction: this.pageOptions.sortDirection}];
+
+            // filter instructions
+            let filters = [];
+            for (let k in this.filters) {
+                if (this.filters.hasOwnProperty(k) && null !== this.filters[k]) {
+                    filters.push({column: k, filter: this.filters[k]});
+                }
+            }
 
             // get start and end from the store:
             const start = new Date(window.store.get('start'));
             const end = new Date(window.store.get('end'));
+            const today = new Date();
 
             let params = {
                 sorting: sorting,
+                filters: filters,
+                today: today,
                 type: type,
                 page: this.page,
                 start: start,
                 end: end
             };
 
-            if(!this.tableColumns.balance_difference.enabled){
+            if (!this.tableColumns.balance_difference.enabled) {
                 delete params.start;
                 delete params.end;
             }
-
-            this.notifications.wait.show = true;
-            this.notifications.wait.text = i18next.t('firefly.wait_loading_data')
             this.accounts = [];
-
+            let groupedAccounts = {};
             // one page only.o
             (new Get()).index(params).then(response => {
-                for (let i = 0; i < response.data.data.length; i++) {
-                    if (response.data.data.hasOwnProperty(i)) {
-                        let current = response.data.data[i];
+                this.totalPages = response.meta.pagination.total_pages;
+                for (let i = 0; i < response.data.length; i++) {
+                    if (response.data.hasOwnProperty(i)) {
+                        let current = response.data[i];
                         let account = {
                             id: parseInt(current.id),
                             active: current.attributes.active,
@@ -273,14 +390,45 @@ let index = function () {
                             native_currency_code: current.attributes.native_currency_code,
                             last_activity: null === current.attributes.last_activity ? '' : format(new Date(current.attributes.last_activity), i18next.t('config.month_and_day_fns')),
                             balance_difference: current.attributes.balance_difference,
-                            native_balance_difference: current.attributes.native_balance_difference
+                            native_balance_difference: current.attributes.native_balance_difference,
+                            liability_type: current.attributes.liability_type,
+                            liability_direction: current.attributes.liability_direction,
+                            interest: current.attributes.interest,
+                            interest_period: current.attributes.interest_period,
+                            current_debt: current.attributes.current_debt,
                         };
-                        console.log(current.attributes.balance_difference);
-                        this.accounts.push(account);
+
+                        // get group info:
+                        let groupId = current.attributes.object_group_id;
+                        if(!this.pageOptions.groupedAccounts) {
+                            groupId = '0';
+                        }
+                        if (!groupedAccounts.hasOwnProperty(groupId)) {
+                            groupedAccounts[groupId] = {
+                                group: {
+                                    id: '0' === groupId || null === groupId ? null : parseInt(groupId),
+                                    title: current.attributes.object_group_title, // are ignored if group id is null.
+                                    order: current.attributes.object_group_order,
+                                },
+                                accounts: [],
+                            }
+                        }
+                        groupedAccounts[groupId].accounts.push(account);
+
+                        //this.accounts.push(account);
                     }
                 }
+                // order grouped accounts by order.
+                let sortable = [];
+                for (let set in groupedAccounts) {
+                    sortable.push(groupedAccounts[set]);
+                }
+                sortable.sort(function(a, b) {
+                    return a.group.order - b.group.order;
+                });
+                this.accounts = sortable;
                 this.notifications.wait.show = false;
-                // add click trigger thing.
+                this.pageOptions.isLoading = false;
             });
         },
     }

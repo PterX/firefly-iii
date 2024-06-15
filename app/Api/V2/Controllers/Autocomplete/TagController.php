@@ -45,11 +45,7 @@ class TagController extends Controller
         $this->middleware(
             function ($request, $next) {
                 $this->repository = app(TagRepositoryInterface::class);
-
-                $userGroup        = $this->validateUserGroup($request);
-                if (null !== $userGroup) {
-                    $this->repository->setUserGroup($userGroup);
-                }
+                $this->repository->setUserGroup($this->validateUserGroup($request));
 
                 return $next($request);
             }
@@ -57,25 +53,20 @@ class TagController extends Controller
     }
 
     /**
-     *  Documentation for this endpoint:
-     *  TODO list of checks
-     *  1. use dates from ParameterBag
-     *  2. Request validates dates
-     *  3. Request includes user_group_id
-     *  4. Endpoint is documented.
-     *  5. Collector uses user_group_id
+     * Documentation: https://api-docs.firefly-iii.org/?urls.primaryName=2.1.0%20(v2)#/autocomplete/getTagsAC
      */
     public function tags(AutocompleteRequest $request): JsonResponse
     {
-        $data     = $request->getData();
-        $result   = $this->repository->searchTag($data['query'], $data['limit']);
-        $filtered = $result->map(
+        $queryParameters = $request->getParameters();
+        $result          = $this->repository->searchTag($queryParameters['query'], $queryParameters['size']);
+        $filtered        = $result->map(
             static function (Tag $item) {
                 return [
-                    'id'    => (string)$item->id,
-                    'name'  => $item->tag,
-                    'value' => (string)$item->id,
+                    'id'    => (string) $item->id,
+                    'title' => $item->tag,
+                    'value' => (string) $item->id,
                     'label' => $item->tag,
+                    'meta'  => [],
                 ];
             }
         );

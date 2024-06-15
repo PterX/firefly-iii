@@ -52,10 +52,8 @@ class NetWorthController extends Controller
                 $this->repository = app(AccountRepositoryInterface::class);
                 // new way of user group validation
                 $userGroup        = $this->validateUserGroup($request);
-                if (null !== $userGroup) {
-                    $this->netWorth->setUserGroup($userGroup);
-                    $this->repository->setUserGroup($userGroup);
-                }
+                $this->netWorth->setUserGroup($userGroup);
+                $this->repository->setUserGroup($userGroup);
 
                 return $next($request);
             }

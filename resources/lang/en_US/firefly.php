@@ -42,6 +42,7 @@ return [
     'year_to_date'                                        => 'Year to date',
     'YTD'                                                 => 'YTD',
     'welcome_back'                                        => 'What\'s playing?',
+    'main_dashboard_page_title'                           => 'Home',
     'everything'                                          => 'Everything',
     'today'                                               => 'today',
     'customRange'                                         => 'Custom range',
@@ -2326,6 +2327,16 @@ return [
     'balanceFor'                                          => 'Balance for :name',
     'no_tags'                                             => '(no tags)',
     'nothing_found'                                       => '(nothing found)',
+
+    // page settings and wizard dialogs
+
+    'page_settings_header'                                => 'Page settings',
+    'visible_columns'                                     => 'Visible columns',
+    'accounts_to_show'                                    => 'Accounts to show',
+    'active_accounts_only'                                => 'Active accounts only',
+    'in_active_accounts_only'                             => 'Inactive accounts only',
+    'show_all_accounts'                                   => 'Show all accounts',
+    'group_accounts'                                      => 'Group accounts',
 
     // piggy banks:
     'event_history'                                       => 'Event history',

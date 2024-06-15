@@ -57,10 +57,7 @@ class CategoryController extends Controller
             function ($request, $next) {
                 $this->accountRepos  = app(AccountRepositoryInterface::class);
                 $this->currencyRepos = app(CurrencyRepositoryInterface::class);
-                $userGroup           = $this->validateUserGroup($request);
-                if (null !== $userGroup) {
-                    $this->accountRepos->setUserGroup($userGroup);
-                }
+                $this->accountRepos->setUserGroup($this->validateUserGroup($request));
 
                 return $next($request);
             }
@@ -100,25 +97,25 @@ class CategoryController extends Controller
 
         /** @var array $journal */
         foreach ($journals as $journal) {
-            $currencyId                    = (int)$journal['currency_id'];
+            $currencyId                    = (int) $journal['currency_id'];
             $currency                      = $currencies[$currencyId] ?? $this->currencyRepos->find($currencyId);
             $currencies[$currencyId]       = $currency;
-            $categoryName                  = null === $journal['category_name'] ? (string)trans('firefly.no_category') : $journal['category_name'];
+            $categoryName                  = null === $journal['category_name'] ? (string) trans('firefly.no_category') : $journal['category_name'];
             $amount                        = app('steam')->positive($journal['amount']);
             $nativeAmount                  = $converter->convert($default, $currency, $journal['date'], $amount);
             $key                           = sprintf('%s-%s', $categoryName, $currency->code);
-            if ((int)$journal['foreign_currency_id'] === $default->id) {
+            if ((int) $journal['foreign_currency_id'] === $default->id) {
                 $nativeAmount = app('steam')->positive($journal['foreign_amount']);
             }
             // create arrays
             $return[$key] ??= [
                 'label'                          => $categoryName,
-                'currency_id'                    => (string)$currency->id,
+                'currency_id'                    => (string) $currency->id,
                 'currency_code'                  => $currency->code,
                 'currency_name'                  => $currency->name,
                 'currency_symbol'                => $currency->symbol,
                 'currency_decimal_places'        => $currency->decimal_places,
-                'native_currency_id'             => (string)$default->id,
+                'native_currency_id'             => (string) $default->id,
                 'native_currency_code'           => $default->code,
                 'native_currency_name'           => $default->name,
                 'native_currency_symbol'         => $default->symbol,
@@ -138,7 +135,7 @@ class CategoryController extends Controller
 
         // order by native amount
         usort($return, static function (array $a, array $b) {
-            return (float)$a['native_amount'] < (float)$b['native_amount'] ? 1 : -1;
+            return (float) $a['native_amount'] < (float) $b['native_amount'] ? 1 : -1;
         });
         $converter->summarize();
 

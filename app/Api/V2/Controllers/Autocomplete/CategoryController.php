@@ -45,11 +45,7 @@ class CategoryController extends Controller
         $this->middleware(
             function ($request, $next) {
                 $this->repository = app(CategoryRepositoryInterface::class);
-
-                $userGroup        = $this->validateUserGroup($request);
-                if (null !== $userGroup) {
-                    $this->repository->setUserGroup($userGroup);
-                }
+                $this->repository->setUserGroup($this->validateUserGroup($request));
 
                 return $next($request);
             }
@@ -57,23 +53,18 @@ class CategoryController extends Controller
     }
 
     /**
-     *  Documentation for this endpoint:
-     *  TODO list of checks
-     *  1. use dates from ParameterBag
-     *  2. Request validates dates
-     *  3. Request includes user_group_id
-     *  4. Endpoint is documented.
-     *  5. Collector uses user_group_id
+     * Documentation: https://api-docs.firefly-iii.org/?urls.primaryName=2.1.0%20(v2)#/autocomplete/getCategoriesAC
      */
     public function categories(AutocompleteRequest $request): JsonResponse
     {
-        $data     = $request->getData();
-        $result   = $this->repository->searchCategory($data['query'], $this->parameters->get('limit'));
-        $filtered = $result->map(
+        $queryParameters = $request->getParameters();
+        $result          = $this->repository->searchCategory($queryParameters['query'], $queryParameters['size']);
+        $filtered        = $result->map(
             static function (Category $item) {
                 return [
-                    'id'   => (string)$item->id,
-                    'name' => $item->name,
+                    'id'    => (string)$item->id,
+                    'title' => $item->name,
+                    'meta'  => [],
                 ];
             }
         );

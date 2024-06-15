@@ -23,47 +23,68 @@ declare(strict_types=1);
 
 namespace FireflyIII\Api\V2\Request\Autocomplete;
 
-use FireflyIII\Enums\UserRoleEnum;
-use FireflyIII\Models\AccountType;
+use FireflyIII\JsonApi\Rules\IsValidFilter;
+use FireflyIII\JsonApi\Rules\IsValidPage;
+use FireflyIII\Support\Http\Api\AccountFilter;
+use FireflyIII\Support\Http\Api\ParsesQueryFilters;
 use FireflyIII\Support\Request\ChecksLogin;
 use FireflyIII\Support\Request\ConvertsDataTypes;
 use Illuminate\Foundation\Http\FormRequest;
+use LaravelJsonApi\Core\Query\QueryParameters;
+use LaravelJsonApi\Validation\Rule as JsonApiRule;
 
 /**
  * Class AutocompleteRequest
  */
 class AutocompleteRequest extends FormRequest
 {
+    use AccountFilter;
     use ChecksLogin;
     use ConvertsDataTypes;
+    use ParsesQueryFilters;
 
-    protected array $acceptedRoles = [UserRoleEnum::MANAGE_TRANSACTIONS];
-
-    public function getData(): array
+    /**
+     * Loops over all possible query parameters (these are shared over ALL auto complete requests)
+     * and returns a validated array of parameters.
+     *
+     * The advantage is a single class. But you may also submit "account types" to an endpoint that doesn't use these.
+     */
+    public function getParameters(): array
     {
-        $types = $this->convertString('types');
-        $array = [];
-        if ('' !== $types) {
-            $array = explode(',', $types);
-        }
-        $limit = $this->convertInteger('limit');
-        $limit = 0 === $limit ? 10 : $limit;
-
-        // remove 'initial balance' and another from allowed types. its internal
-        $array = array_diff($array, [AccountType::INITIAL_BALANCE, AccountType::RECONCILIATION]);
+        $queryParameters = QueryParameters::cast($this->all());
 
         return [
-            'types' => $array,
-            'query' => $this->convertString('query'),
-            'date'  => $this->getCarbonDate('date'),
-            'limit' => $limit,
+            'date'          => $this->dateOrToday($queryParameters, 'date'),
+            'query'         => $this->arrayOfStrings($queryParameters, 'query'),
+            'size'          => $this->integerFromQueryParams($queryParameters, 'size', 50),
+            'account_types' => $this->getAccountTypeParameter($this->arrayOfStrings($queryParameters, 'account_types')),
         ];
     }
 
     public function rules(): array
     {
         return [
-            'limit' => 'min:0|max:1337',
+            'fields'  => JsonApiRule::notSupported(),
+            'filter'  => ['nullable', 'array', new IsValidFilter(['query', 'date', 'account_types'])],
+            'include' => JsonApiRule::notSupported(),
+            'page'    => ['nullable', 'array', new IsValidPage(['size'])],
+            'sort'    => JsonApiRule::notSupported(),
         ];
+    }
+
+    private function getAccountTypeParameter(mixed $types): array
+    {
+        if (is_string($types) && str_contains($types, ',')) {
+            $types = explode(',', $types);
+        }
+        if (!is_iterable($types)) {
+            $types = [$types];
+        }
+        $return = [];
+        foreach ($types as $type) {
+            $return = array_merge($return, $this->mapAccountTypes($type));
+        }
+
+        return array_unique($return);
     }
 }

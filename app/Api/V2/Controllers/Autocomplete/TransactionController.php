@@ -45,11 +45,7 @@ class TransactionController extends Controller
         $this->middleware(
             function ($request, $next) {
                 $this->repository = app(JournalRepositoryInterface::class);
-
-                $userGroup        = $this->validateUserGroup($request);
-                if (null !== $userGroup) {
-                    $this->repository->setUserGroup($userGroup);
-                }
+                $this->repository->setUserGroup($this->validateUserGroup($request));
 
                 return $next($request);
             }
@@ -57,30 +53,25 @@ class TransactionController extends Controller
     }
 
     /**
-     *  Documentation for this endpoint:
-     *  TODO list of checks
-     *  1. use dates from ParameterBag
-     *  2. Request validates dates
-     *  3. Request includes user_group_id
-     *  4. Endpoint is documented.
-     *  5. Collector uses user_group_id
+     * Documentation: https://api-docs.firefly-iii.org/?urls.primaryName=2.1.0%20(v2)#/autocomplete/getTransactionsAC
      */
     public function transactionDescriptions(AutocompleteRequest $request): JsonResponse
     {
-        $data     = $request->getData();
-        $result   = $this->repository->searchJournalDescriptions($data['query'], $data['limit']);
+        $queryParameters = $request->getParameters();
+        $result          = $this->repository->searchJournalDescriptions($queryParameters['query'], $queryParameters['size']);
 
         // limit and unique
-        $filtered = $result->unique('description');
-        $array    = [];
+        $filtered        = $result->unique('description');
+        $array           = [];
 
         /** @var TransactionJournal $journal */
         foreach ($filtered as $journal) {
             $array[] = [
-                'id'                   => (string)$journal->id,
-                'transaction_group_id' => (string)$journal->transaction_group_id,
-                'name'                 => $journal->description,
-                'description'          => $journal->description,
+                'id'    => (string) $journal->id,
+                'title' => $journal->description,
+                'meta'  => [
+                    'transaction_group_id' => (string) $journal->transaction_group_id,
+                ],
             ];
         }
 

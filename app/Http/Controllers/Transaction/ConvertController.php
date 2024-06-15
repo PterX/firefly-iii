@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Transaction;
 
-use Exception;
 use FireflyIII\Events\UpdatedTransactionGroup;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
@@ -65,7 +64,7 @@ class ConvertController extends Controller
         $this->middleware(
             function ($request, $next) {
                 $this->accountRepository = app(AccountRepositoryInterface::class);
-                app('view')->share('title', (string)trans('firefly.transactions'));
+                app('view')->share('title', (string) trans('firefly.transactions'));
                 app('view')->share('mainTitleIcon', 'fa-exchange');
 
                 return $next($request);
@@ -95,7 +94,7 @@ class ConvertController extends Controller
 
         $groupTitle           = $group->title ?? $first->description;
         $groupArray           = $transformer->transformObject($group);
-        $subTitle             = (string)trans('firefly.convert_to_'.$destinationType->type, ['description' => $groupTitle]);
+        $subTitle             = (string) trans('firefly.convert_to_'.$destinationType->type, ['description' => $groupTitle]);
         $subTitleIcon         = 'fa-exchange';
 
         // get a list of asset accounts and liabilities and stuff, in various combinations:
@@ -111,7 +110,7 @@ class ConvertController extends Controller
 
         if ($sourceType->type === $destinationType->type) { // cannot convert to its own type.
             app('log')->debug('This is already a transaction of the expected type..');
-            session()->flash('info', (string)trans('firefly.convert_is_already_type_'.$destinationType->type));
+            session()->flash('info', (string) trans('firefly.convert_is_already_type_'.$destinationType->type));
 
             return redirect(route('transactions.show', [$group->id]));
         }
@@ -147,7 +146,7 @@ class ConvertController extends Controller
         // group accounts:
         /** @var Account $account */
         foreach ($accountList as $account) {
-            $role                        = (string)$this->accountRepository->getMetaValue($account, 'account_role');
+            $role                        = (string) $this->accountRepository->getMetaValue($account, 'account_role');
             $name                        = $account->name;
             if ('' === $role) {
                 $role = 'no_account_type';
@@ -165,7 +164,7 @@ class ConvertController extends Controller
                 $role = 'revenue_account';
             }
 
-            $key                         = (string)trans('firefly.opt_group_'.$role);
+            $key                         = (string) trans('firefly.opt_group_'.$role);
             $grouped[$key][$account->id] = $name;
         }
 
@@ -184,7 +183,7 @@ class ConvertController extends Controller
         // group accounts:
         /** @var Account $account */
         foreach ($accountList as $account) {
-            $role                        = (string)$this->accountRepository->getMetaValue($account, 'account_role');
+            $role                        = (string) $this->accountRepository->getMetaValue($account, 'account_role');
             $name                        = $account->name;
             if ('' === $role) {
                 $role = 'no_account_type';
@@ -202,7 +201,7 @@ class ConvertController extends Controller
                 $role = 'expense_account';
             }
 
-            $key                         = (string)trans('firefly.opt_group_'.$role);
+            $key                         = (string) trans('firefly.opt_group_'.$role);
             $grouped[$key][$account->id] = $name;
         }
 
@@ -225,7 +224,7 @@ class ConvertController extends Controller
             $balance                     = app('steam')->balance($account, today());
             $currency                    = $this->accountRepository->getAccountCurrency($account) ?? $defaultCurrency;
             $role                        = 'l_'.$account->accountType->type;
-            $key                         = (string)trans('firefly.opt_group_'.$role);
+            $key                         = (string) trans('firefly.opt_group_'.$role);
             $grouped[$key][$account->id] = $account->name.' ('.app('amount')->formatAnything($currency, $balance, false).')';
         }
 
@@ -247,12 +246,12 @@ class ConvertController extends Controller
         foreach ($accountList as $account) {
             $balance                     = app('steam')->balance($account, today());
             $currency                    = $this->accountRepository->getAccountCurrency($account) ?? $defaultCurrency;
-            $role                        = (string)$this->accountRepository->getMetaValue($account, 'account_role');
+            $role                        = (string) $this->accountRepository->getMetaValue($account, 'account_role');
             if ('' === $role) {
                 $role = 'no_account_type';
             }
 
-            $key                         = (string)trans('firefly.opt_group_'.$role);
+            $key                         = (string) trans('firefly.opt_group_'.$role);
             $grouped[$key][$account->id] = $account->name.' ('.app('amount')->formatAnything($currency, $balance, false).')';
         }
 
@@ -285,7 +284,7 @@ class ConvertController extends Controller
         // correct transfers:
         $group->refresh();
 
-        session()->flash('success', (string)trans('firefly.converted_to_'.$destinationType->type));
+        session()->flash('success', (string) trans('firefly.converted_to_'.$destinationType->type));
         event(new UpdatedTransactionGroup($group, true, true));
 
         return redirect(route('transactions.show', [$group->id]));
@@ -306,11 +305,11 @@ class ConvertController extends Controller
         $destinationId    = $data['destination_id'][$journal->id] ?? null;
         $destinationName  = $data['destination_name'][$journal->id] ?? null;
 
-        // double check its not an empty string.
-        $sourceId         = '' === $sourceId || null === $sourceId ? null : (int)$sourceId;
-        $sourceName       = '' === $sourceName ? null : (string)$sourceName;
-        $destinationId    = '' === $destinationId || null === $destinationId ? null : (int)$destinationId;
-        $destinationName  = '' === $destinationName ? null : (string)$destinationName;
+        // double check it's not an empty string.
+        $sourceId         = '' === $sourceId || null === $sourceId ? null : (int) $sourceId;
+        $sourceName       = '' === $sourceName ? null : (string) $sourceName;
+        $destinationId    = '' === $destinationId || null === $destinationId ? null : (int) $destinationId;
+        $destinationName  = '' === $destinationName ? null : (string) $destinationName;
         $validSource      = $validator->validateSource(['id' => $sourceId, 'name' => $sourceName]);
         $validDestination = $validator->validateDestination(['id' => $destinationId, 'name' => $destinationName]);
 
@@ -330,6 +329,19 @@ class ConvertController extends Controller
             'destination_name' => $destinationName,
             'type'             => $transactionType->type,
         ];
+
+        // also set the currency to the currency of the source account, in case you're converting a deposit into a transfer.
+        if (TransactionType::TRANSFER === $transactionType->type && TransactionType::DEPOSIT === $journal->transactionType->type) {
+            $source         = $this->accountRepository->find((int) $sourceId);
+            $sourceCurrency = $this->accountRepository->getAccountCurrency($source);
+            $dest           = $this->accountRepository->find((int) $destinationId);
+            $destCurrency   = $this->accountRepository->getAccountCurrency($dest);
+            if (null !== $sourceCurrency && null !== $destCurrency && $sourceCurrency->code !== $destCurrency->code) {
+                $update['currency_id']         = $sourceCurrency->id;
+                $update['foreign_currency_id'] = $destCurrency->id;
+                $update['foreign_amount']      = '1'; // not the best solution but at this point the amount is hard to get.
+            }
+        }
 
         /** @var JournalUpdateService $service */
         $service          = app(JournalUpdateService::class);

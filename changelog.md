@@ -3,6 +3,67 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 6.1.17 - 2024-06-16
+
+### Added
+
+- New routine that calculates account balances, first start could take a while.
+
+### Removed
+
+- Removed auto-generated language files.
+
+### Fixed
+
+- [Issue 8907](https://github.com/firefly-iii/firefly-iii/issues/8907) (Error when adding initial balance: bcadd(): Argument #2 ($num2) must be of type string, int given) reported by @wnklmnn
+- [Issue 8911](https://github.com/firefly-iii/firefly-iii/issues/8911) (Docker container startup very slow) reported by @daften
+- [PR 8929](https://github.com/firefly-iii/firefly-iii/pull/8929) (icon title chgd from Deposit to Transfer) reported by @stevewasiura
+- [PR 8930](https://github.com/firefly-iii/firefly-iii/pull/8930) (icon title chgd from Deposit to Transfer) reported by @stevewasiura
+- [PR 8951](https://github.com/firefly-iii/firefly-iii/pull/8951) (add icon for delete action) reported by @stevewasiura
+- [PR 8957](https://github.com/firefly-iii/firefly-iii/pull/8957) (Remove nesting level for markdown) reported by @JeroenED
+- [Issue 8958](https://github.com/firefly-iii/firefly-iii/issues/8958) (Weird line appears above the UI when clicking on matching transactions for a rule) reported by @avee87
+- [Issue 8893](https://github.com/firefly-iii/firefly-iii/issues/8893) (API: `reconciled: false` does not have precedence) reported by @dreautall
+- [Issue 8954](https://github.com/firefly-iii/firefly-iii/issues/8954) (Wrong calculation of transaction without category) reported by @anarion80
+- [Issue 8927](https://github.com/firefly-iii/firefly-iii/issues/8927) (Converting deposit to transfer can set incorrect transaction currency) reported by @avee87
+- Various issues in release train.
+- There is a confirmation again before you delete data using the page in your profile
+
+### Security
+
+- Two (undisclosed) MFA bypass errors, reported by @Skelmis. Disclosure will follow in a few weeks.
+
+### API
+
+- Expand v2 chart API
+
+## 6.1.16 - 2024-05-20
+
+### Added
+
+- Added [THANKS.md] to give credit to all developers who help with the development of Firefly III.
+
+### Changed
+
+- New data model for "account balance" makes it easier to calculate and use multi-currency accounts. Not yet in use.
+
+### Fixed
+
+- [Issue 8840](https://github.com/firefly-iii/firefly-iii/issues/8840) (Budget page crash) reported by @JcMinarro
+- [Issue 8863](https://github.com/firefly-iii/firefly-iii/issues/8863) (Empty webhooks page) reported by @mrahmadt
+- [Issue 8867](https://github.com/firefly-iii/firefly-iii/issues/8867) (SQL Integrity constraint violation when inserting into budget_limits) reported by @HedgehogRidingAnOwl 
+- [Issue 8858](https://github.com/firefly-iii/firefly-iii/issues/8858) (A single Account constantly loses its Account NUmber / IBAN ) reported by @ypsilonkah
+
+### API
+
+- New filters for the v2 autocomplete endpoints.
+- Various attempts to make a better v2 accounts endpoint.
+
+## 6.1.15 - 2024-04-24
+
+### Fixed
+
+- [Issue 8812](https://github.com/firefly-iii/firefly-iii/issues/8812) (Login with `AUTHENTICATION_GUARD=remote_user_guard` fails due to missing UserGroup) reported by @nebulade
+
 ## 6.1.14 - 2024-04-24
 
 ### Changed

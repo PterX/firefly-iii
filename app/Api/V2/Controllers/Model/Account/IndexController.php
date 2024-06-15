@@ -30,6 +30,7 @@ use FireflyIII\Repositories\UserGroups\Account\AccountRepositoryInterface;
 use FireflyIII\Transformers\V2\AccountTransformer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class IndexController extends Controller
 {
@@ -57,21 +58,35 @@ class IndexController extends Controller
     }
 
     /**
+     * TODO the sort instructions need proper repeatable documentation.
      * TODO see autocomplete/account controller for list.
      */
     public function index(IndexRequest $request): JsonResponse
     {
         $this->repository->resetAccountOrder();
-        $types        = $request->getAccountTypes();
-        $instructions = $request->getSortInstructions('accounts');
-        $accounts     = $this->repository->getAccountsByType($types, $instructions);
-        $pageSize     = $this->parameters->get('limit');
-        $count        = $accounts->count();
-        $accounts     = $accounts->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
-        $paginator    = new LengthAwarePaginator($accounts, $count, $pageSize, $this->parameters->get('page'));
-        $transformer  = new AccountTransformer();
+        $types             = $request->getAccountTypes();
+        $sorting           = $request->getSortInstructions('accounts');
+        $filters           = $request->getFilterInstructions('accounts');
+        $accounts          = $this->repository->getAccountsByType($types, $sorting, $filters);
+        $pageSize          = $this->parameters->get('limit');
+        $count             = $accounts->count();
 
-        $this->parameters->set('sort', $instructions);
+        // depending on the sort parameters, this list must not be split, because the
+        // order is calculated in the account transformer and by that time it's too late.
+        $first             = array_key_first($sorting);
+        $disablePagination = in_array($first, ['last_activity', 'balance', 'balance_difference'], true);
+        Log::debug(sprintf('Will disable pagination in account index v2? %s', var_export($disablePagination, true)));
+        if (!$disablePagination) {
+            $accounts = $accounts->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
+        }
+        $paginator         = new LengthAwarePaginator($accounts, $count, $pageSize, $this->parameters->get('page'));
+        $transformer       = new AccountTransformer();
+
+        $this->parameters->set('disablePagination', $disablePagination);
+        $this->parameters->set('pageSize', $pageSize);
+        $this->parameters->set('sort', $sorting);
+
+        $this->parameters->set('filters', $filters);
         $transformer->setParameters($this->parameters); // give params to transformer
 
         return response()

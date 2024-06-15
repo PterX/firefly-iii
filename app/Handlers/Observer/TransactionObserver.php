@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace FireflyIII\Handlers\Observer;
 
 use FireflyIII\Models\Transaction;
+use FireflyIII\Support\Models\AccountBalanceCalculator;
 
 /**
  * Class TransactionObserver
@@ -34,5 +35,17 @@ class TransactionObserver
     {
         app('log')->debug('Observe "deleting" of a transaction.');
         $transaction?->transactionJournal?->delete();
+    }
+
+    public function updated(Transaction $transaction): void
+    {
+        app('log')->debug('Observe "updated" of a transaction.');
+        AccountBalanceCalculator::recalculateForJournal($transaction->transactionJournal);
+    }
+
+    public function created(Transaction $transaction): void
+    {
+        app('log')->debug('Observe "created" of a transaction.');
+        AccountBalanceCalculator::recalculateForJournal($transaction->transactionJournal);
     }
 }

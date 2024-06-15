@@ -8,7 +8,7 @@ on:
         required: true
         default: 'develop'
   schedule:
-    - cron: '0 3 * * MON,THU'
+    - cron: '0 3 * * MON'
 
 jobs:
   build:
@@ -32,6 +32,15 @@ jobs:
         env:
           FIREFLY_III_ROOT: /github/workspace
           GH_TOKEN: ${{ secrets.CHANGELOG_TOKEN }}
+      - name: "Create THANKS.md"
+        id: thank-you
+        uses: JC5/firefly-iii-dev@main
+        with:
+          action: 'ff3:thank-you'
+          output: ''
+        env:
+          FIREFLY_III_ROOT: /github/workspace
+          GH_TOKEN: ''
       - name: Extract changelog
         id: extract-changelog
         uses: JC5/firefly-iii-dev@main
@@ -81,9 +90,9 @@ jobs:
       - name: Build JS
         run: |
           npm install
-          npm update
           npm run prod  --workspace=v1
           npm run build --workspace=v2
+          npm update
       - name: Run CI
         run: |
           rm -rf vendor composer.lock
