@@ -33,7 +33,8 @@ class AccountPolicy
      */
     public function view(User $user, Account $account): bool
     {
-        die('OK');
+        exit('OK');
+
         return true;
 
         return auth()->check() && $user->id === $account->user_id;
@@ -46,7 +47,8 @@ class AccountPolicy
      */
     public function viewAny(): bool
     {
-        die('OK');
+        exit('OK');
+
         return true;
 
         return auth()->check();

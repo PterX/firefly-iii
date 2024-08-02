@@ -37,13 +37,13 @@ use LaravelJsonApi\NonEloquent\Concerns\PaginatesEnumerables;
 
 class AccountQuery extends QueryAll implements HasPagination
 {
+    use CollectsCustomParameters;
     use ExpandsQuery;
     use FiltersPagination;
     use PaginatesEnumerables;
     use SortsCollection;
     use UsergroupAware;
     use ValidateSortParameters;
-    use CollectsCustomParameters;
 
     #[\Override]
     /**
@@ -55,20 +55,20 @@ class AccountQuery extends QueryAll implements HasPagination
     {
         Log::debug(__METHOD__);
         // collect filters
-        $filters = $this->queryParameters->filter();
+        $filters     = $this->queryParameters->filter();
         // collect sort options
-        $sort = $this->queryParameters->sortFields();
+        $sort        = $this->queryParameters->sortFields();
         // collect pagination based on the page
-        $pagination = $this->filtersPagination($this->queryParameters->page());
+        $pagination  = $this->filtersPagination($this->queryParameters->page());
         // check if we need all accounts, regardless of pagination
         // This is necessary when the user wants to sort on specific params.
-        $needsAll = $this->needsFullDataset('account', $sort);
+        $needsAll    = $this->needsFullDataset('account', $sort);
 
         // params that were not recognised, may be my own custom stuff.
         $otherParams = $this->getOtherParams($this->queryParameters->unrecognisedParameters());
 
         // start the query
-        $query = $this->userGroup->accounts();
+        $query       = $this->userGroup->accounts();
 
         // add pagination to the query, limiting the results.
         if (!$needsAll) {
@@ -76,18 +76,17 @@ class AccountQuery extends QueryAll implements HasPagination
         }
 
         // add sort and filter parameters to the query.
-        $query = $this->addSortParams($query, $sort);
-        $query = $this->addFilterParams('account', $query, $filters);
-
+        $query       = $this->addSortParams($query, $sort);
+        $query       = $this->addFilterParams('account', $query, $filters);
 
         // collect the result.
-        $collection = $query->get(['accounts.*']);
+        $collection  = $query->get(['accounts.*']);
 
         // enrich the collected data
-        $enrichment = new AccountEnrichment();
+        $enrichment  = new AccountEnrichment();
         $enrichment->setStart($otherParams['start'] ?? null);
         $enrichment->setEnd($otherParams['end'] ?? null);
-        $collection = $enrichment->enrich($collection);
+        $collection  = $enrichment->enrich($collection);
 
         // TODO add filters after the query, if there are filters that cannot be applied to the database but only
         // to the enriched results.

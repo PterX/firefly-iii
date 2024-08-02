@@ -27,22 +27,22 @@ class AccountCollectionQuery extends ResourceQuery
                 'array',
                 JsonApiRule::fieldSets(),
             ],
-            'userGroupId' => [
+            'userGroupId'   => [
                 'nullable',
                 'integer',
                 new IsAllowedGroupAction(Account::class, request()->method()),
             ],
-            'startPeriod' => [
+            'startPeriod'   => [
                 'nullable',
                 'date',
                 new IsDateOrTime(),
-                new isValidDateRange(),
+                new IsValidDateRange(),
             ],
-            'endPeriod' => [
+            'endPeriod'     => [
                 'nullable',
                 'date',
                 new IsDateOrTime(),
-                new isValidDateRange(),
+                new IsValidDateRange(),
             ],
             'filter'        => [
                 'nullable',
@@ -59,12 +59,12 @@ class AccountCollectionQuery extends ResourceQuery
                 'array',
                 JsonApiRule::page(),
             ],
-            'page.number' => [
+            'page.number'   => [
                 'integer',
                 'min:1',
             ],
 
-            'page.size' => [
+            'page.size'     => [
                 'integer',
                 'min:1',
             ],

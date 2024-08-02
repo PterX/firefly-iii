@@ -66,7 +66,6 @@ class AccountResource extends JsonApiResource
             // other things
             'last_activity'           => $this->resource->last_activity,
 
-
             // object group
             'object_group_id'         => $this->resource->object_group_id,
             'object_group_title'      => $this->resource->object_group_title,

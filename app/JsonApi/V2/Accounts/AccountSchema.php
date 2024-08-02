@@ -90,10 +90,12 @@ class AccountSchema extends Schema
     {
         $this->setUserGroup($this->server->getUsergroup());
         $repository = AccountRepository::make()
-                                       ->withServer($this->server)
-                                       ->withSchema($this)
-                                       ->withUserGroup($this->userGroup);
+            ->withServer($this->server)
+            ->withSchema($this)
+            ->withUserGroup($this->userGroup)
+        ;
         Log::debug(sprintf('%s: %s', __METHOD__, get_class($repository)));
+
         return $repository;
     }
 }

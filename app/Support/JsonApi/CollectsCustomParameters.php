@@ -27,7 +27,6 @@ use Carbon\Carbon;
 
 trait CollectsCustomParameters
 {
-
     protected function getOtherParams(array $params): array
     {
         $return = [];

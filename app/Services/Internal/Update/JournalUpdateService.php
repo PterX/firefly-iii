@@ -692,12 +692,12 @@ class JournalUpdateService
         }
 
         $origSourceTransaction                = $this->getSourceTransaction();
-        $destTransaction               = $this->getDestinationTransaction();
+        $destTransaction                      = $this->getDestinationTransaction();
         // if the amount changed, fire an event
-        $currencyId                    = $origSourceTransaction->transaction_currency_id;
-        $currency                      = $this->currencyRepository->findCurrency($currencyId, null);
-        $newAmount                     = app('steam')->positive($amount);
-        $oldAmount                     = app('steam')->positive($destTransaction->amount);
+        $currencyId                           = $origSourceTransaction->transaction_currency_id;
+        $currency                             = $this->currencyRepository->findCurrency($currencyId, null);
+        $newAmount                            = app('steam')->positive($amount);
+        $oldAmount                            = app('steam')->positive($destTransaction->amount);
         if (0 !== bccomp($oldAmount, $newAmount, $currency->decimal_places)) {
             event(new TriggeredAuditLog(
                 $this->transactionJournal->user,
