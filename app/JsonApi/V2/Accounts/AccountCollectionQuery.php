@@ -1,0 +1,83 @@
+<?php
+
+declare(strict_types=1);
+
+namespace FireflyIII\JsonApi\V2\Accounts;
+
+use FireflyIII\Models\Account;
+use FireflyIII\Rules\IsAllowedGroupAction;
+use FireflyIII\Rules\IsDateOrTime;
+use FireflyIII\Rules\IsValidDateRange;
+use Illuminate\Support\Facades\Log;
+use LaravelJsonApi\Laravel\Http\Requests\ResourceQuery;
+use LaravelJsonApi\Validation\Rule as JsonApiRule;
+
+class AccountCollectionQuery extends ResourceQuery
+{
+    /**
+     * Get the validation rules that apply to the request query parameters.
+     */
+    public function rules(): array
+    {
+        Log::debug(__METHOD__);
+
+        return [
+            'fields'        => [
+                'nullable',
+                'array',
+                JsonApiRule::fieldSets(),
+            ],
+            'userGroupId' => [
+                'nullable',
+                'integer',
+                new IsAllowedGroupAction(Account::class, request()->method()),
+            ],
+            'startPeriod' => [
+                'nullable',
+                'date',
+                new IsDateOrTime(),
+                new isValidDateRange(),
+            ],
+            'endPeriod' => [
+                'nullable',
+                'date',
+                new IsDateOrTime(),
+                new isValidDateRange(),
+            ],
+            'filter'        => [
+                'nullable',
+                'array',
+                JsonApiRule::filter(),
+            ],
+            'include'       => [
+                'nullable',
+                'string',
+                JsonApiRule::includePaths(),
+            ],
+            'page'          => [
+                'nullable',
+                'array',
+                JsonApiRule::page(),
+            ],
+            'page.number' => [
+                'integer',
+                'min:1',
+            ],
+
+            'page.size' => [
+                'integer',
+                'min:1',
+            ],
+            'sort'          => [
+                'nullable',
+                'string',
+                JsonApiRule::sort(),
+            ],
+            'withCount'     => [
+                'nullable',
+                'string',
+                JsonApiRule::countable(),
+            ],
+        ];
+    }
+}

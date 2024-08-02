@@ -23,12 +23,21 @@ declare(strict_types=1);
 
 namespace FireflyIII\Support\Models;
 
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountBalance;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionJournal;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Class AccountBalanceCalculator
+ *
+ * This class started as a piece of code to create and calculate "account balance" objects, but they
+ * are at the moment unused. Instead, each transaction gets a before/after balance and an indicator if this
+ * balance is up-to-date. This class now contains some methods to recalculate those amounts.
+ */
 class AccountBalanceCalculator
 {
     private function __construct()
@@ -37,25 +46,35 @@ class AccountBalanceCalculator
     }
 
     /**
-     * Recalculate all balances for a given account.
-     *
-     * Je moet toch altijd wel alles doen want je weet niet waar een transaction journal invloed op heeft.
-     * Dus dit aantikken per transaction journal is zinloos, beide accounts moeten gedaan worden.
+     * Recalculate all balances.
+     */
+    public static function forceRecalculateAll(): void
+    {
+        Transaction::whereNull('deleted_at')->update(['balance_dirty' => true]);
+        $object = new self();
+        $object->optimizedCalculation(new Collection());
+    }
+
+    /**
+     * Recalculate all balances.
      */
     public static function recalculateAll(): void
     {
         $object = new self();
-        $object->recalculateLatest(null);
-        // $object->recalculateJournals(null, null);
+        $object->optimizedCalculation(new Collection());
     }
 
     public static function recalculateForJournal(TransactionJournal $transactionJournal): void
     {
-        $object = new self();
+        Log::debug(__METHOD__);
+        $object   = new self();
+
+        // recalculate the involved accounts:
+        $accounts = new Collection();
         foreach ($transactionJournal->transactions as $transaction) {
-            $object->recalculateLatest($transaction->account);
-            // $object->recalculateJournals($transaction->account, $transactionJournal);
+            $accounts->push($transaction->account);
         }
+        $object->optimizedCalculation($accounts);
     }
 
     private function getAccountBalanceByAccount(int $account, int $currency): AccountBalance
@@ -77,6 +96,58 @@ class AccountBalanceCalculator
         // Log::debug(sprintf('Created new account balance for account #%d and currency #%d: %s', $account, $currency, $entry->balance));
 
         return $entry;
+    }
+
+    private function optimizedCalculation(Collection $accounts): void
+    {
+        Log::debug('start of optimizedCalculation');
+        if ($accounts->count() > 0) {
+            Log::debug(sprintf('Limited to %d account(s)', $accounts->count()));
+        }
+        // collect all transactions and the change they make.
+        $balances = [];
+        $count    = 0;
+        $query    = Transaction::leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
+            ->whereNull('transactions.deleted_at')
+            ->whereNull('transaction_journals.deleted_at')
+            // this order is the same as GroupCollector, but in the exact reverse.
+            ->orderBy('transaction_journals.date', 'asc')
+            ->orderBy('transaction_journals.order', 'desc')
+            ->orderBy('transaction_journals.id', 'asc')
+            ->orderBy('transaction_journals.description', 'asc')
+            ->orderBy('transactions.amount', 'asc')
+        ;
+        if ($accounts->count() > 0) {
+            $query->whereIn('transactions.account_id', $accounts->pluck('id')->toArray());
+        }
+
+        $set      = $query->get(['transactions.id', 'transactions.balance_dirty', 'transactions.transaction_currency_id', 'transaction_journals.date', 'transactions.account_id', 'transactions.amount']);
+
+        /** @var Transaction $entry */
+        foreach ($set as $entry) {
+            // start with empty array:
+            $balances[$entry->account_id]                                  ??= [];
+            $balances[$entry->account_id][$entry->transaction_currency_id] ??= '0';
+
+            // before and after are easy:
+            $before                                                        = $balances[$entry->account_id][$entry->transaction_currency_id];
+            $after                                                         = bcadd($before, $entry->amount);
+            if (true === $entry->balance_dirty || $accounts->count() > 0) {
+                // update the transaction:
+                $entry->balance_before = $before;
+                $entry->balance_after  = $after;
+                $entry->balance_dirty  = false;
+                $entry->saveQuietly(); // do not observe this change, or we get stuck in a loop.
+                ++$count;
+            }
+
+            // then update the array:
+            $balances[$entry->account_id][$entry->transaction_currency_id] = $after;
+        }
+        Log::debug(sprintf('end of optimizedCalculation, corrected %d balance(s)', $count));
+        // then update all transactions.
+
+        // ?? something with accounts?
     }
 
     private function getAccountBalanceByJournal(string $title, int $account, int $journal, int $currency): AccountBalance
@@ -117,16 +188,38 @@ class AccountBalanceCalculator
             $foreignCurrency     = (int) $row->foreign_currency_id;
             $sumAmount           = (string) $row->sum_amount;
             $sumForeignAmount    = (string) $row->sum_foreign_amount;
+            $sumAmount           = '' === $sumAmount ? '0' : $sumAmount;
+            $sumForeignAmount    = '' === $sumForeignAmount ? '0' : $sumForeignAmount;
+
+            // at this point SQLite may return scientific notation because why not. Terrible.
+            $sumAmount           = app('steam')->floatalize($sumAmount);
+            $sumForeignAmount    = app('steam')->floatalize($sumForeignAmount);
 
             // first create for normal currency:
             $entry               = $this->getAccountBalanceByAccount($account, $transactionCurrency);
-            $entry->balance      = bcadd((string) $entry->balance, $sumAmount);
+
+            try {
+                $entry->balance = bcadd((string) $entry->balance, $sumAmount);
+            } catch (\ValueError $e) {
+                $message = sprintf('[a] Could not add "%s" to "%s": %s', $entry->balance, $sumAmount, $e->getMessage());
+                Log::error($message);
+
+                throw new FireflyException($message, 0, $e);
+            }
             $entry->save();
 
             // then do foreign amount, if present:
             if ($foreignCurrency > 0) {
-                $entry          = $this->getAccountBalanceByAccount($account, $foreignCurrency);
-                $entry->balance = bcadd((string) $entry->balance, $sumForeignAmount);
+                $entry = $this->getAccountBalanceByAccount($account, $foreignCurrency);
+
+                try {
+                    $entry->balance = bcadd((string) $entry->balance, $sumForeignAmount);
+                } catch (\ValueError $e) {
+                    $message = sprintf('[b] Could not add "%s" to "%s": %s', $entry->balance, $sumForeignAmount, $e->getMessage());
+                    Log::error($message);
+
+                    throw new FireflyException($message, 0, $e);
+                }
                 $entry->save();
             }
         }

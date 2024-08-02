@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 6.1.19 - 2024-07-20
+
+### Fixed
+
+- [Issue 8844](https://github.com/firefly-iii/firefly-iii/issues/8844) (Split recurring transaction gets wrong (split) titles) reported by @dreautall
+- [Issue 8981](https://github.com/firefly-iii/firefly-iii/issues/8981) (bcadd() error during Docker container startup) reported by @NoiTheCat
+- [Issue 8986](https://github.com/firefly-iii/firefly-iii/issues/8986) (Search with "internal_reference_is" finds all transactions with full word of search string) reported by @baflo
+- [Issue 9009](https://github.com/firefly-iii/firefly-iii/issues/9009) (Incorrect Amount Calculation in Reconciliation for Bank Account A) reported by @realzsan3
+- [Issue 9021](https://github.com/firefly-iii/firefly-iii/issues/9021) (Incorrect "Expected Withdrawals" for Daily Recurring Transactions) reported by @xMarcii
+- [Issue 9022](https://github.com/firefly-iii/firefly-iii/issues/9022) (Calendar Not Showing Green Fields for Recurring Transactions) reported by @xMarcii
+- Improved currency exchange rate downloader
+
+## 6.1.18 - 2024-06-19
+
+### Fixed
+
+- [Issue 8978](https://github.com/firefly-iii/firefly-iii/issues/8978) (Error! Internal Firefly III Exception: bcadd(): Argument #2 ($num2) is not well-formed) reported by @el-rhazi
+- [Issue 8977](https://github.com/firefly-iii/firefly-iii/issues/8977) (Data Importer: "500 Server Error" with Firefly III v6.1.17) reported by @qtdzz
+
+### Security
+
+- [CVE-2024-37893](https://www.cve.org/CVERecord?id=CVE-2024-37893)
+
 ## 6.1.17 - 2024-06-16
 
 ### Added

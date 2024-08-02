@@ -23,14 +23,12 @@ declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
-use Carbon\Carbon;
-use Eloquent;
 use FireflyIII\Support\Models\ReturnsIntegerIdTrait;
 use FireflyIII\Support\Models\ReturnsIntegerUserIdTrait;
 use FireflyIII\User;
+use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,84 +36,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Query\Builder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * Class Account
- *
- * @property int                      $id
- * @property null|Carbon              $created_at
- * @property null|Carbon              $updated_at
- * @property null|Carbon              $deleted_at
- * @property int                      $user_id
- * @property int                      $account_type_id
- * @property string                   $name
- * @property string                   $virtual_balance
- * @property null|string              $iban
- * @property bool                     $active
- * @property bool                     $encrypted
- * @property int                      $order
- * @property AccountMeta[]|Collection $accountMeta
- * @property null|int                 $account_meta_count
- * @property AccountType              $accountType
- * @property Attachment[]|Collection  $attachments
- * @property null|int                 $attachments_count
- * @property string                   $account_number
- * @property string                   $edit_name
- * @property Collection|Location[]    $locations
- * @property null|int                 $locations_count
- * @property Collection|Note[]        $notes
- * @property null|int                 $notes_count
- * @property Collection|ObjectGroup[] $objectGroups
- * @property null|int                 $object_groups_count
- * @property Collection|PiggyBank[]   $piggyBanks
- * @property null|int                 $piggy_banks_count
- * @property Collection|Transaction[] $transactions
- * @property null|int                 $transactions_count
- * @property User                     $user
- *
- * @method static EloquentBuilder|Account accountTypeIn($types)
- * @method static EloquentBuilder|Account newModelQuery()
- * @method static EloquentBuilder|Account newQuery()
- * @method static Builder|Account         onlyTrashed()
- * @method static EloquentBuilder|Account query()
- * @method static EloquentBuilder|Account whereAccountTypeId($value)
- * @method static EloquentBuilder|Account whereActive($value)
- * @method static EloquentBuilder|Account whereCreatedAt($value)
- * @method static EloquentBuilder|Account whereDeletedAt($value)
- * @method static EloquentBuilder|Account whereEncrypted($value)
- * @method static EloquentBuilder|Account whereIban($value)
- * @method static EloquentBuilder|Account whereId($value)
- * @method static EloquentBuilder|Account whereName($value)
- * @method static EloquentBuilder|Account whereOrder($value)
- * @method static EloquentBuilder|Account whereUpdatedAt($value)
- * @method static EloquentBuilder|Account whereUserId($value)
- * @method static EloquentBuilder|Account whereVirtualBalance($value)
- * @method static Builder|Account         withTrashed()
- * @method static Builder|Account         withoutTrashed()
- *
- * @property Carbon   $lastActivityDate
- * @property string   $startBalance
- * @property string   $endBalance
- * @property string   $difference
- * @property string   $interest
- * @property string   $interestPeriod
- * @property string   $accountTypeString
- * @property Location $location
- * @property string   $liability_direction
- * @property string   $current_debt
- * @property int      $user_group_id
- *
- * @method static EloquentBuilder|Account whereUserGroupId($value)
- *
- * @property null|UserGroup $userGroup
- * @property mixed          $account_id
- *
- * @mixin Eloquent
+ * @mixin IdeHelperAccount
  */
 class Account extends Model
 {
+    use Cachable;
     use HasFactory;
     use ReturnsIntegerIdTrait;
     use ReturnsIntegerUserIdTrait;
@@ -144,7 +72,7 @@ class Account extends Model
     public static function routeBinder(string $value): self
     {
         if (auth()->check()) {
-            $accountId = (int)$value;
+            $accountId = (int) $value;
 
             /** @var User $user */
             $user      = auth()->user();
@@ -246,7 +174,7 @@ class Account extends Model
 
     public function setVirtualBalanceAttribute(mixed $value): void
     {
-        $value                               = (string)$value;
+        $value                               = (string) $value;
         if ('' === $value) {
             $value = null;
         }
@@ -266,7 +194,7 @@ class Account extends Model
     protected function accountId(): Attribute
     {
         return Attribute::make(
-            get: static fn ($value) => (int)$value,
+            get: static fn ($value) => (int) $value,
         );
     }
 
@@ -276,21 +204,21 @@ class Account extends Model
     protected function accountTypeId(): Attribute
     {
         return Attribute::make(
-            get: static fn ($value) => (int)$value,
+            get: static fn ($value) => (int) $value,
         );
     }
 
     protected function iban(): Attribute
     {
         return Attribute::make(
-            get: static fn ($value) => null === $value ? null : trim(str_replace(' ', '', (string)$value)),
+            get: static fn ($value) => null === $value ? null : trim(str_replace(' ', '', (string) $value)),
         );
     }
 
     protected function order(): Attribute
     {
         return Attribute::make(
-            get: static fn ($value) => (int)$value,
+            get: static fn ($value) => (int) $value,
         );
     }
 
@@ -300,7 +228,7 @@ class Account extends Model
     protected function virtualBalance(): Attribute
     {
         return Attribute::make(
-            get: static fn ($value) => (string)$value,
+            get: static fn ($value) => (string) $value,
         );
     }
 }

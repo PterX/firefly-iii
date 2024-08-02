@@ -27,7 +27,7 @@ use LaravelJsonApi\Core\Query\SortFields;
 
 trait ValidateSortParameters
 {
-    public function validateParams(string $class, ?SortFields $params): bool
+    public function needsFullDataset(string $class, ?SortFields $params): bool
     {
         if (null === $params) {
             return false;

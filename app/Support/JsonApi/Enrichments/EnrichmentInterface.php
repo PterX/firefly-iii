@@ -23,9 +23,12 @@ declare(strict_types=1);
 
 namespace FireflyIII\Support\JsonApi\Enrichments;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 interface EnrichmentInterface
 {
     public function enrich(Collection $collection): Collection;
+
+    public function enrichSingle(Model $model): Model;
 }
