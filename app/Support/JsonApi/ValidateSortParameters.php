@@ -23,20 +23,22 @@ declare(strict_types=1);
 
 namespace FireflyIII\Support\JsonApi;
 
+use Illuminate\Support\Facades\Log;
 use LaravelJsonApi\Core\Query\SortFields;
 
 trait ValidateSortParameters
 {
-    public function validateParams(string $class, ?SortFields $params): bool
+    public function needsFullDataset(string $class, ?SortFields $params): bool
     {
+        Log::debug(__METHOD__);
         if (null === $params) {
             return false;
         }
-
-        $config = config(sprintf('firefly.full_data_set.%s', $class)) ?? [];
-
+        $config = config('api.full_data_set')[$class] ?? [];
         foreach ($params->all() as $field) {
             if (in_array($field->name(), $config, true)) {
+                Log::debug('TRUE');
+
                 return true;
             }
         }

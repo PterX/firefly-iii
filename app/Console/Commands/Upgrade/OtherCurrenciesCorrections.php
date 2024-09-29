@@ -90,7 +90,7 @@ class OtherCurrenciesCorrections extends Command
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool)$configVar->data;
+            return (bool) $configVar->data;
         }
 
         return false;
@@ -120,7 +120,7 @@ class OtherCurrenciesCorrections extends Command
         $this->journalRepos->setUser($journal->user);
         $this->cliRepos->setUser($journal->user);
 
-        $leadTransaction                  = $this->getLeadTransaction($journal);
+        $leadTransaction = $this->getLeadTransaction($journal);
 
         if (null === $leadTransaction) {
             $this->friendlyError(sprintf('Could not reliably determine which transaction is in the lead for transaction journal #%d.', $journal->id));
@@ -128,8 +128,9 @@ class OtherCurrenciesCorrections extends Command
             return;
         }
 
-        $account                          = $leadTransaction->account;
-        $currency                         = $this->getCurrency($account);
+        $account         = $leadTransaction->account;
+        $currency        = $this->getCurrency($account);
+        $isMultiCurrency = $this->isMultiCurrency($account);
         if (null === $currency) {
             $this->friendlyError(
                 sprintf(
@@ -145,14 +146,14 @@ class OtherCurrenciesCorrections extends Command
         }
         // fix each transaction:
         $journal->transactions->each(
-            static function (Transaction $transaction) use ($currency): void {
+            static function (Transaction $transaction) use ($currency, $isMultiCurrency): void {
                 if (null === $transaction->transaction_currency_id) {
                     $transaction->transaction_currency_id = $currency->id;
                     $transaction->save();
                 }
 
                 // when mismatch in transaction:
-                if ($transaction->transaction_currency_id !== $currency->id) {
+                if ($transaction->transaction_currency_id !== $currency->id && !$isMultiCurrency) {
                     $transaction->foreign_currency_id     = $transaction->transaction_currency_id;
                     $transaction->foreign_amount          = $transaction->amount;
                     $transaction->transaction_currency_id = $currency->id;
@@ -161,7 +162,9 @@ class OtherCurrenciesCorrections extends Command
             }
         );
         // also update the journal, of course:
-        $journal->transaction_currency_id = $currency->id;
+        if (!$isMultiCurrency) {
+            $journal->transaction_currency_id = $currency->id;
+        }
         ++$this->count;
         $journal->save();
     }
@@ -238,5 +241,15 @@ class OtherCurrenciesCorrections extends Command
     private function markAsExecuted(): void
     {
         app('fireflyconfig')->set(self::CONFIG_NAME, true);
+    }
+
+    private function isMultiCurrency(Account $account): bool
+    {
+        $value = $this->accountRepos->getMetaValue($account, 'is_multi_currency', false);
+        if (false === $value || null === $value) {
+            return false;
+        }
+
+        return '1' === $value;
     }
 }

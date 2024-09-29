@@ -1,6 +1,6 @@
 <?php
 /*
- * AccountBalanceQuery.php
+ * CrudAccountRelations.php
  * Copyright (c) 2024 james@firefly-iii.org.
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
@@ -21,38 +21,8 @@
 
 declare(strict_types=1);
 
-namespace FireflyIII\JsonApi\V3\AccountBalances\Capabilities;
+namespace FireflyIII\JsonApi\V2\Accounts\Capabilities;
 
-use FireflyIII\Entities\AccountBalance;
-use FireflyIII\Models\Account;
-use LaravelJsonApi\NonEloquent\Capabilities\QueryAll;
+use LaravelJsonApi\NonEloquent\Capabilities\CrudRelations;
 
-class AccountBalanceQuery extends QueryAll
-{
-    private Account $account;
-
-    /**
-     * QuerySites constructor.
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    public function get(): iterable
-    {
-        return [
-            AccountBalance::fromArray(),
-            AccountBalance::fromArray(),
-            AccountBalance::fromArray(),
-            AccountBalance::fromArray(),
-        ];
-    }
-
-    public function withAccount(Account $account): self
-    {
-        $this->account = $account;
-
-        return $this;
-    }
-}
+class CrudAccountRelations extends CrudRelations {}

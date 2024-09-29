@@ -25,17 +25,21 @@ namespace FireflyIII\Policies;
 
 use FireflyIII\Models\Account;
 use FireflyIII\User;
+use Illuminate\Support\Facades\Log;
 
 class AccountPolicy
 {
     /**
-     * TODO needs better authentication.
+     * TODO needs better authentication, also for group.
      */
     public function view(User $user, Account $account): bool
     {
-        return true;
-
         return auth()->check() && $user->id === $account->user_id;
+    }
+
+    public function create(): bool
+    {
+        return auth()->check();
     }
 
     /**
@@ -45,7 +49,7 @@ class AccountPolicy
      */
     public function viewAny(): bool
     {
-        return true;
+        Log::debug(__METHOD__);
 
         return auth()->check();
     }

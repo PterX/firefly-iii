@@ -1,6 +1,6 @@
 <?php
 /*
- * AccountBalanceRepository.php
+ * IsValidAccountType.php
  * Copyright (c) 2024 james@firefly-iii.org.
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
@@ -21,25 +21,35 @@
 
 declare(strict_types=1);
 
-namespace FireflyIII\JsonApi\V3\AccountBalances;
+namespace FireflyIII\Rules\Account;
 
-use FireflyIII\Entities\AccountBalance;
-use LaravelJsonApi\Contracts\Store\QueriesAll;
-use LaravelJsonApi\NonEloquent\AbstractRepository;
+use FireflyIII\Support\Http\Api\AccountFilter;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class AccountBalanceRepository extends AbstractRepository implements QueriesAll
+class IsValidAccountType implements ValidationRule
 {
-    #[\Override]
-    public function find(string $resourceId): ?object
-    {
-        return AccountBalance::fromArray();
-    }
+    use AccountFilter;
 
-    public function queryAll(): Capabilities\AccountBalanceQuery
+    #[\Override]
+    public function validate(string $attribute, mixed $value, \Closure $fail): void
     {
-        return Capabilities\AccountBalanceQuery::make()
-            ->withServer($this->server)
-            ->withSchema($this->schema)
-        ;
+        // only check the type.
+        if (array_key_exists('type', $value)) {
+            $value    = $value['type'];
+            if (!is_array($value)) {
+                $value = [$value];
+            }
+
+            $filtered = [];
+            $keys     = array_keys($this->types);
+
+            /** @var mixed $entry */
+            foreach ($value as $entry) {
+                $entry = (string) $entry;
+                if (!in_array($entry, $keys, true)) {
+                    $fail('something');
+                }
+            }
+        }
     }
 }

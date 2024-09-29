@@ -29,7 +29,6 @@ use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\Support\Search\OperatorQuerySearch;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
-use Route;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -63,9 +62,33 @@ class General extends AbstractExtension
                 }
 
                 /** @var Carbon $date */
-                $date = session('end', today(config('app.timezone'))->endOfMonth());
+                $date           = session('end', today(config('app.timezone'))->endOfMonth());
+                $runningBalance = config('firefly.feature_flags.running_balance_column');
+                $info           = [];
+                if (true === $runningBalance) {
+                    $info = app('steam')->balanceByTransactions($account, $date, null);
+                }
+                if (false === $runningBalance) {
+                    $info[] = app('steam')->balance($account, $date);
+                }
 
-                return app('steam')->balance($account, $date);
+                $strings        = [];
+                foreach ($info as $currencyId => $balance) {
+                    $balance = (string) $balance;
+                    if (0 === $currencyId) {
+                        // not good code but OK
+                        /** @var AccountRepositoryInterface $accountRepos */
+                        $accountRepos = app(AccountRepositoryInterface::class);
+                        $currency     = $accountRepos->getAccountCurrency($account) ?? app('amount')->getDefaultCurrency();
+                        $strings[]    = app('amount')->formatAnything($currency, $balance, false);
+                    }
+                    if (0 !== $currencyId) {
+                        $strings[] = app('amount')->formatByCurrencyId($currencyId, $balance, false);
+                    }
+                }
+
+                return implode(', ', $strings);
+                // return app('steam')->balance($account, $date);
             }
         );
     }
@@ -191,7 +214,7 @@ class General extends AbstractExtension
                     ]
                 );
 
-                return (string)$converter->convert($text);
+                return (string) $converter->convert($text);
             },
             ['is_safe' => ['html']]
         );
@@ -205,8 +228,8 @@ class General extends AbstractExtension
         return new TwigFilter(
             'phphost',
             static function (string $string): string {
-                $proto = (string)parse_url($string, PHP_URL_SCHEME);
-                $host  = (string)parse_url($string, PHP_URL_HOST);
+                $proto = (string) parse_url($string, PHP_URL_SCHEME);
+                $host  = (string) parse_url($string, PHP_URL_HOST);
 
                 return e(sprintf('%s://%s', $proto, $host));
             }

@@ -73,6 +73,7 @@ trait ChecksLogin
     /**
      * Return the user group or NULL if none is set.
      * Will throw exception if invalid.
+     * TODO duplicated in JSONAPI code.
      */
     public function getUserGroup(): ?UserGroup
     {

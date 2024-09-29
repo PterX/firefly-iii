@@ -25,7 +25,6 @@ namespace FireflyIII\Support;
 
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidFormatException;
-use Exception;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\Transaction;
@@ -40,13 +39,17 @@ use Illuminate\Support\Facades\Log;
  */
 class Steam
 {
+    /**
+     * @deprecated
+     */
     public function balanceIgnoreVirtual(Account $account, Carbon $date): string
     {
+        // Log::warning(sprintf('Deprecated method %s, do not use.', __METHOD__));
         /** @var AccountRepositoryInterface $repository */
         $repository     = app(AccountRepositoryInterface::class);
         $repository->setUser($account->user);
 
-        $currencyId     = (int)$repository->getMetaValue($account, 'currency_id');
+        $currencyId     = (int) $repository->getMetaValue($account, 'currency_id');
         $transactions   = $account->transactions()
             ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
             ->where('transaction_journals.date', '<=', $date->format('Y-m-d 23:59:59'))
@@ -75,7 +78,7 @@ class Steam
 
         /** @var array $transaction */
         foreach ($transactions as $transaction) {
-            $value = (string)($transaction[$key] ?? '0');
+            $value = (string) ($transaction[$key] ?? '0');
             $value = '' === $value ? '0' : $value;
             $sum   = bcadd($sum, $value);
         }
@@ -92,6 +95,7 @@ class Steam
      */
     public function balanceInRange(Account $account, Carbon $start, Carbon $end, ?TransactionCurrency $currency = null): array
     {
+        //        Log::warning(sprintf('Deprecated method %s, do not use.', __METHOD__));
         $cache                = new CacheProperties();
         $cache->addProperty($account->id);
         $cache->addProperty('balance-in-range');
@@ -144,14 +148,14 @@ class Steam
         /** @var Transaction $entry */
         foreach ($set as $entry) {
             // normal amount and foreign amount
-            $modified        = (string)(null === $entry->modified ? '0' : $entry->modified);
-            $foreignModified = (string)(null === $entry->modified_foreign ? '0' : $entry->modified_foreign);
+            $modified        = (string) (null === $entry->modified ? '0' : $entry->modified);
+            $foreignModified = (string) (null === $entry->modified_foreign ? '0' : $entry->modified_foreign);
             $amount          = '0';
-            if ($currencyId === (int)$entry->transaction_currency_id || 0 === $currencyId) {
+            if ($currencyId === (int) $entry->transaction_currency_id || 0 === $currencyId) {
                 // use normal amount:
                 $amount = $modified;
             }
-            if ($currencyId === (int)$entry->foreign_currency_id) {
+            if ($currencyId === (int) $entry->foreign_currency_id) {
                 // use foreign amount:
                 $amount = $foreignModified;
             }
@@ -167,6 +171,48 @@ class Steam
         return $balances;
     }
 
+    public function balanceByTransactions(Account $account, Carbon $date, ?TransactionCurrency $currency): array
+    {
+        $cache  = new CacheProperties();
+        $cache->addProperty($account->id);
+        $cache->addProperty('balance-by-transactions');
+        $cache->addProperty($date);
+        $cache->addProperty(null !== $currency ? $currency->id : 0);
+        if ($cache->has()) {
+            return $cache->get();
+        }
+
+        $query  = $account->transactions()
+            ->leftJoin('transaction_journals', 'transactions.transaction_journal_id', '=', 'transaction_journals.id')
+            ->orderBy('transaction_journals.date', 'desc')
+            ->orderBy('transaction_journals.order', 'asc')
+            ->orderBy('transaction_journals.description', 'desc')
+            ->orderBy('transactions.amount', 'desc')
+        ;
+        if (null !== $currency) {
+            $query->where('transactions.transaction_currency_id', $currency->id);
+            $query->limit(1);
+            $result = $query->get(['transactions.transaction_currency_id', 'transactions.balance_after'])->first();
+            $key    = (int) $result->transaction_currency_id;
+            $return = [$key => $result->balance_after];
+            $cache->store($return);
+
+            return $return;
+        }
+
+        $return = [];
+        $result = $query->get(['transactions.transaction_currency_id', 'transactions.balance_after']);
+        foreach ($result as $entry) {
+            $key          = (int) $entry->transaction_currency_id;
+            if (array_key_exists($key, $return)) {
+                continue;
+            }
+            $return[$key] = $entry->balance_after;
+        }
+
+        return $return;
+    }
+
     /**
      * Gets balance at the end of current month by default
      *
@@ -174,6 +220,7 @@ class Steam
      */
     public function balance(Account $account, Carbon $date, ?TransactionCurrency $currency = null): string
     {
+        //        Log::warning(sprintf('Deprecated method %s, do not use.', __METHOD__));
         // abuse chart properties:
         $cache          = new CacheProperties();
         $cache->addProperty($account->id);
@@ -222,6 +269,7 @@ class Steam
      */
     public function balanceInRangeConverted(Account $account, Carbon $start, Carbon $end, TransactionCurrency $native): array
     {
+        //        Log::warning(sprintf('Deprecated method %s, do not use.', __METHOD__));
         $cache                = new CacheProperties();
         $cache->addProperty($account->id);
         $cache->addProperty('balance-in-range-converted');
@@ -282,7 +330,7 @@ class Steam
             }
             $format                  = $day->format('Y-m-d');
             // if the transaction is in the expected currency, change nothing.
-            if ((int)$transaction['transaction_currency_id'] === $native->id) {
+            if ((int) $transaction['transaction_currency_id'] === $native->id) {
                 // change the current balance, set it to today, continue the loop.
                 $currentBalance    = bcadd($currentBalance, $transaction['amount']);
                 $balances[$format] = $currentBalance;
@@ -291,7 +339,7 @@ class Steam
                 continue;
             }
             // if foreign currency is in the expected currency, do nothing:
-            if ((int)$transaction['foreign_currency_id'] === $native->id) {
+            if ((int) $transaction['foreign_currency_id'] === $native->id) {
                 $currentBalance    = bcadd($currentBalance, $transaction['foreign_amount']);
                 $balances[$format] = $currentBalance;
                 Log::debug(sprintf('%s: transaction in %s (foreign), new balance is %s.', $format, $native->code, $currentBalance));
@@ -299,7 +347,7 @@ class Steam
                 continue;
             }
             // otherwise, convert 'amount' to the necessary currency:
-            $currencyId              = (int)$transaction['transaction_currency_id'];
+            $currencyId              = (int) $transaction['transaction_currency_id'];
             $currency                = $currencies[$currencyId] ?? TransactionCurrency::find($currencyId);
             $currencies[$currencyId] = $currency;
 
@@ -347,6 +395,7 @@ class Steam
      */
     public function balanceConverted(Account $account, Carbon $date, TransactionCurrency $native): string
     {
+        //        Log::warning(sprintf('Deprecated method %s, do not use.', __METHOD__));
         Log::debug(sprintf('Now in balanceConverted (%s) for account #%d, converting to %s', $date->format('Y-m-d'), $account->id, $native->code));
         $cache      = new CacheProperties();
         $cache->addProperty($account->id);
@@ -356,7 +405,7 @@ class Steam
         if ($cache->has()) {
             Log::debug('Cached!');
 
-            // return $cache->get();
+            return $cache->get();
         }
 
         /** @var AccountRepositoryInterface $repository */
@@ -492,6 +541,7 @@ class Steam
      */
     public function balancesByAccounts(Collection $accounts, Carbon $date): array
     {
+        //        Log::warning(sprintf('Deprecated method %s, do not use.', __METHOD__));
         $ids    = $accounts->pluck('id')->toArray();
         // cache this property.
         $cache  = new CacheProperties();
@@ -522,6 +572,7 @@ class Steam
      */
     public function balancesByAccountsConverted(Collection $accounts, Carbon $date): array
     {
+        //        Log::warning(sprintf('Deprecated method %s, do not use.', __METHOD__));
         $ids    = $accounts->pluck('id')->toArray();
         // cache this property.
         $cache  = new CacheProperties();
@@ -529,7 +580,7 @@ class Steam
         $cache->addProperty('balances-converted');
         $cache->addProperty($date);
         if ($cache->has()) {
-            // return $cache->get();
+            return $cache->get();
         }
 
         // need to do this per account.
@@ -555,6 +606,7 @@ class Steam
      */
     public function balancesPerCurrencyByAccounts(Collection $accounts, Carbon $date): array
     {
+        //        Log::warning(sprintf('Deprecated method %s, do not use.', __METHOD__));
         $ids    = $accounts->pluck('id')->toArray();
         // cache this property.
         $cache  = new CacheProperties();
@@ -580,6 +632,7 @@ class Steam
 
     public function balancePerCurrency(Account $account, Carbon $date): array
     {
+        //        Log::warning(sprintf('Deprecated method %s, do not use.', __METHOD__));
         // abuse chart properties:
         $cache    = new CacheProperties();
         $cache->addProperty($account->id);
@@ -598,7 +651,7 @@ class Steam
 
         /** @var \stdClass $entry */
         foreach ($balances as $entry) {
-            $return[(int)$entry->transaction_currency_id] = (string)$entry->sum_for_currency;
+            $return[(int) $entry->transaction_currency_id] = (string) $entry->sum_for_currency;
         }
         $cache->store($return);
 
@@ -703,7 +756,7 @@ class Steam
             throw new FireflyException($e->getMessage(), 0, $e);
         }
 
-        return (string)$hostName;
+        return (string) $hostName;
     }
 
     public function getLastActivities(array $accounts): array
@@ -738,7 +791,7 @@ class Steam
         if ('equal' === $locale) {
             $locale = $this->getLanguage();
         }
-        $locale = (string)$locale;
+        $locale = (string) $locale;
 
         // Check for Windows to replace the locale correctly.
         if ('WIN' === strtoupper(substr(PHP_OS, 0, 3))) {
@@ -836,21 +889,22 @@ class Steam
         if (!str_contains($value, 'E')) {
             return $value;
         }
+        Log::debug(sprintf('Floatalizing %s', $value));
 
-        $number = substr($value, 0, (int)strpos($value, 'E'));
+        $number = substr($value, 0, (int) strpos($value, 'E'));
         if (str_contains($number, '.')) {
-            $post   = strlen(substr($number, (int)strpos($number, '.') + 1));
-            $mantis = substr($value, (int)strpos($value, 'E') + 1);
+            $post   = strlen(substr($number, (int) strpos($number, '.') + 1));
+            $mantis = substr($value, (int) strpos($value, 'E') + 1);
             if ($mantis < 0) {
-                $post += abs((int)$mantis);
+                $post += abs((int) $mantis);
             }
 
             // TODO careless float could break financial math.
-            return number_format((float)$value, $post, '.', '');
+            return number_format((float) $value, $post, '.', '');
         }
 
         // TODO careless float could break financial math.
-        return number_format((float)$value, 0, '.', '');
+        return number_format((float) $value, 0, '.', '');
     }
 
     public function opposite(?string $amount = null): ?string
@@ -870,24 +924,24 @@ class Steam
             // has a K in it, remove the K and multiply by 1024.
             $bytes = bcmul(rtrim($string, 'k'), '1024');
 
-            return (int)$bytes;
+            return (int) $bytes;
         }
 
         if (false !== stripos($string, 'm')) {
             // has a M in it, remove the M and multiply by 1048576.
             $bytes = bcmul(rtrim($string, 'm'), '1048576');
 
-            return (int)$bytes;
+            return (int) $bytes;
         }
 
         if (false !== stripos($string, 'g')) {
             // has a G in it, remove the G and multiply by (1024)^3.
             $bytes = bcmul(rtrim($string, 'g'), '1073741824');
 
-            return (int)$bytes;
+            return (int) $bytes;
         }
 
-        return (int)$string;
+        return (int) $string;
     }
 
     public function positive(string $amount): string

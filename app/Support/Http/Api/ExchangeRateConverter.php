@@ -44,12 +44,17 @@ class ExchangeRateConverter
     private array $prepared        = [];
     private int   $queryCount      = 0;
 
+    public function enabled(): bool
+    {
+        return false !== config('cer.enabled');
+    }
+
     /**
      * @throws FireflyException
      */
     public function convert(TransactionCurrency $from, TransactionCurrency $to, Carbon $date, string $amount): string
     {
-        if (false === config('cer.enabled')) {
+        if (false === $this->enabled()) {
             Log::debug('ExchangeRateConverter: disabled, return amount as is.');
 
             return $amount;
@@ -64,7 +69,7 @@ class ExchangeRateConverter
      */
     public function getCurrencyRate(TransactionCurrency $from, TransactionCurrency $to, Carbon $date): string
     {
-        if (false === config('cer.enabled')) {
+        if (false === $this->enabled()) {
             Log::debug('ExchangeRateConverter: disabled, return "1".');
 
             return '1';
@@ -254,7 +259,7 @@ class ExchangeRateConverter
      */
     public function prepare(TransactionCurrency $from, TransactionCurrency $to, Carbon $start, Carbon $end): void
     {
-        if (false === config('cer.enabled')) {
+        if (false === $this->enabled()) {
             return;
         }
         Log::debug('prepare()');
@@ -329,7 +334,7 @@ class ExchangeRateConverter
 
     public function summarize(): void
     {
-        if (false === config('cer.enabled')) {
+        if (false === $this->enabled()) {
             return;
         }
         Log::debug(sprintf('ExchangeRateConverter ran %d queries.', $this->queryCount));

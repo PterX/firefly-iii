@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace FireflyIII\JsonApi\V3\Users;
+namespace FireflyIII\JsonApi\V2\Users;
 
 use FireflyIII\User;
 use LaravelJsonApi\Eloquent\Contracts\Paginator;
