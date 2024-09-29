@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Support\Models;
 
+use Carbon\Carbon;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountBalance;
@@ -74,7 +75,35 @@ class AccountBalanceCalculator
         foreach ($transactionJournal->transactions as $transaction) {
             $accounts->push($transaction->account);
         }
-        $object->optimizedCalculation($accounts);
+        $object->optimizedCalculation($accounts, $transactionJournal->date);
+    }
+
+    private function getLatestBalance(int $accountId, int $currencyId, ?Carbon $notBefore): string
+    {
+        if (null === $notBefore) {
+            return '0';
+        }
+        Log::debug(sprintf('getLatestBalance: notBefore date is "%s", calculating', $notBefore->format('Y-m-d')));
+        $query   = Transaction::leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
+            ->whereNull('transactions.deleted_at')
+            ->where('transaction_journals.transaction_currency_id', $currencyId)
+            ->whereNull('transaction_journals.deleted_at')
+            // this order is the same as GroupCollector
+            ->orderBy('transaction_journals.date', 'DESC')
+            ->orderBy('transaction_journals.order', 'ASC')
+            ->orderBy('transaction_journals.id', 'DESC')
+            ->orderBy('transaction_journals.description', 'DESC')
+            ->orderBy('transactions.amount', 'DESC')
+            ->where('transactions.account_id', $accountId)
+        ;
+        $notBefore->startOfDay();
+        $query->where('transaction_journals.date', '<', $notBefore);
+
+        $first   = $query->first(['transactions.id', 'transactions.balance_dirty', 'transactions.transaction_currency_id', 'transaction_journals.date', 'transactions.account_id', 'transactions.amount', 'transactions.balance_after']);
+        $balance = $first->balance_after ?? '0';
+        Log::debug(sprintf('getLatestBalance: found balance: %s in transaction #%d', $balance, $first->id ?? 0));
+
+        return $balance;
     }
 
     private function getAccountBalanceByAccount(int $account, int $currency): AccountBalance
@@ -98,9 +127,15 @@ class AccountBalanceCalculator
         return $entry;
     }
 
-    private function optimizedCalculation(Collection $accounts): void
+    private function optimizedCalculation(Collection $accounts, ?Carbon $notBefore = null): void
     {
         Log::debug('start of optimizedCalculation');
+        if (false === config('firefly.feature_flags.running_balance_column')) {
+            Log::debug('optimizedCalculation is disabled, return.');
+
+            return;
+        }
+
         if ($accounts->count() > 0) {
             Log::debug(sprintf('Limited to %d account(s)', $accounts->count()));
         }
@@ -120,6 +155,10 @@ class AccountBalanceCalculator
         if ($accounts->count() > 0) {
             $query->whereIn('transactions.account_id', $accounts->pluck('id')->toArray());
         }
+        if (null !== $notBefore) {
+            $notBefore->startOfDay();
+            $query->where('transaction_journals.date', '>=', $notBefore);
+        }
 
         $set      = $query->get(['transactions.id', 'transactions.balance_dirty', 'transactions.transaction_currency_id', 'transaction_journals.date', 'transactions.account_id', 'transactions.amount']);
 
@@ -127,7 +166,7 @@ class AccountBalanceCalculator
         foreach ($set as $entry) {
             // start with empty array:
             $balances[$entry->account_id]                                  ??= [];
-            $balances[$entry->account_id][$entry->transaction_currency_id] ??= '0';
+            $balances[$entry->account_id][$entry->transaction_currency_id] ??= $this->getLatestBalance($entry->account_id, $entry->transaction_currency_id, $notBefore);
 
             // before and after are easy:
             $before                                                        = $balances[$entry->account_id][$entry->transaction_currency_id];
@@ -306,7 +345,7 @@ class AccountBalanceCalculator
 
     private function getStartAmounts(Account $account, TransactionJournal $journal): array
     {
-        exit('here we are');
+        exit('here we are 1');
 
         return [];
     }

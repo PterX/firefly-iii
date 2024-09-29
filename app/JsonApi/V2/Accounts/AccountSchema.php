@@ -12,6 +12,7 @@ use LaravelJsonApi\Eloquent\Fields\Relations\HasOne;
 use LaravelJsonApi\NonEloquent\Fields\Attribute;
 use LaravelJsonApi\NonEloquent\Fields\ID;
 use LaravelJsonApi\NonEloquent\Filters\Filter;
+use LaravelJsonApi\NonEloquent\Pagination\EnumerablePagination;
 
 class AccountSchema extends Schema
 {
@@ -27,21 +28,19 @@ class AccountSchema extends Schema
      */
     public function fields(): array
     {
-        // Log::debug(__METHOD__);
-
         return [
             ID::make(),
             Attribute::make('created_at'),
             Attribute::make('updated_at'),
 
             // basic info and meta data
-            Attribute::make('name'),
-            Attribute::make('active'),
-            Attribute::make('order'),
-            Attribute::make('iban'),
-            Attribute::make('type'),
+            Attribute::make('name')->sortable(),
+            Attribute::make('active')->sortable(),
+            Attribute::make('order')->sortable(),
+            Attribute::make('iban')->sortable(),
+            Attribute::make('account_type'),
             Attribute::make('account_role'),
-            Attribute::make('account_number'),
+            Attribute::make('account_number')->sortable(),
 
             // currency
             Attribute::make('currency_id'),
@@ -52,17 +51,20 @@ class AccountSchema extends Schema
             Attribute::make('is_multi_currency'),
 
             // balance
-            Attribute::make('balance'),
-            Attribute::make('native_balance'),
+            Attribute::make('balance')->sortable(),
+            Attribute::make('native_balance')->sortable(),
 
             // liability things
             Attribute::make('liability_direction'),
             Attribute::make('interest'),
             Attribute::make('interest_period'),
-            Attribute::make('current_debt'),
+            // Attribute::make('current_debt')->sortable(),
+
+            // TODO credit card fields.
 
             // dynamic data
-            Attribute::make('last_activity'),
+            Attribute::make('last_activity')->sortable(),
+            Attribute::make('balance_difference')->sortable(), // only used for sort.
 
             // group
             Attribute::make('object_group_id'),
@@ -79,23 +81,32 @@ class AccountSchema extends Schema
      */
     public function filters(): array
     {
-        //        Log::debug(__METHOD__);
+        Log::debug(__METHOD__);
+        $array  = [];
+        $config = config('api.valid_api_filters')[Account::class];
+        foreach ($config as $entry) {
+            $array[] = Filter::make($entry);
+        }
 
-        return [
-            Filter::make('id'),
-        ];
+        return $array;
     }
 
     public function repository(): AccountRepository
     {
+        Log::debug(__METHOD__);
         $this->setUserGroup($this->server->getUsergroup());
-        $repository = AccountRepository::make()
+
+        return AccountRepository::make()
             ->withServer($this->server)
             ->withSchema($this)
             ->withUserGroup($this->userGroup)
         ;
-        Log::debug(sprintf('%s: %s', __METHOD__, get_class($repository)));
+    }
 
-        return $repository;
+    public function pagination(): EnumerablePagination
+    {
+        Log::debug(__METHOD__);
+
+        return EnumerablePagination::make();
     }
 }

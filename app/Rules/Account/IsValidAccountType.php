@@ -1,6 +1,6 @@
 <?php
 /*
- * ValidateSortParameters.php
+ * IsValidAccountType.php
  * Copyright (c) 2024 james@firefly-iii.org.
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
@@ -21,28 +21,35 @@
 
 declare(strict_types=1);
 
-namespace FireflyIII\Support\JsonApi;
+namespace FireflyIII\Rules\Account;
 
-use Illuminate\Support\Facades\Log;
-use LaravelJsonApi\Core\Query\SortFields;
+use FireflyIII\Support\Http\Api\AccountFilter;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-trait ValidateSortParameters
+class IsValidAccountType implements ValidationRule
 {
-    public function needsFullDataset(string $class, ?SortFields $params): bool
-    {
-        Log::debug(__METHOD__);
-        if (null === $params) {
-            return false;
-        }
-        $config = config('api.full_data_set')[$class] ?? [];
-        foreach ($params->all() as $field) {
-            if (in_array($field->name(), $config, true)) {
-                Log::debug('TRUE');
+    use AccountFilter;
 
-                return true;
+    #[\Override]
+    public function validate(string $attribute, mixed $value, \Closure $fail): void
+    {
+        // only check the type.
+        if (array_key_exists('type', $value)) {
+            $value    = $value['type'];
+            if (!is_array($value)) {
+                $value = [$value];
+            }
+
+            $filtered = [];
+            $keys     = array_keys($this->types);
+
+            /** @var mixed $entry */
+            foreach ($value as $entry) {
+                $entry = (string) $entry;
+                if (!in_array($entry, $keys, true)) {
+                    $fail('something');
+                }
             }
         }
-
-        return false;
     }
 }

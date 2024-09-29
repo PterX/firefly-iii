@@ -53,6 +53,8 @@ class CrudAccount extends CrudResource
 
     public function create(array $validatedData): Account
     {
-        exit('here we are');
+        var_dump($validatedData);
+
+        exit;
     }
 }

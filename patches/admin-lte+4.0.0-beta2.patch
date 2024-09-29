@@ -1,8 +1,10 @@
 diff --git a/node_modules/admin-lte/src/scss/_app-sidebar.scss b/node_modules/admin-lte/src/scss/_app-sidebar.scss
-index 437946b..040bf5d 100644
+old mode 100644
+new mode 100755
+index 69dfc16..dc341eb
 --- a/node_modules/admin-lte/src/scss/_app-sidebar.scss
 +++ b/node_modules/admin-lte/src/scss/_app-sidebar.scss
-@@ -582,7 +582,6 @@ body:not(.app-loaded) {
+@@ -577,7 +577,6 @@ body:not(.app-loaded) {
  
  @if $enable-dark-mode {
    @include color-mode(dark) {

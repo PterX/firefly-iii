@@ -48,7 +48,12 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
 });
 sortingColumn = params.column ?? '';
-sortDirection = params.direction ?? '';
+sortDirection = 'asc';
+if(sortingColumn[0] === '-') {
+    sortingColumn = sortingColumn.substring(1);
+    sortDirection = 'desc';
+}
+
 page = parseInt(params.page ?? 1);
 
 
@@ -77,6 +82,7 @@ let index = function () {
         filters: {
             active: null,
             name: null,
+            type: type,
         },
         pageOptions: {
             isLoading: true,
@@ -337,14 +343,19 @@ let index = function () {
         },
         loadAccounts() {
             this.pageOptions.isLoading = true;
-            // sort instructions
-            const sorting = [{column: this.pageOptions.sortingColumn, direction: this.pageOptions.sortDirection}];
+            // sort instructions (only one column)
+            let sorting = this.pageOptions.sortingColumn;
+            if('asc' === this.pageOptions.sortDirection && '' !== sorting) {
+                sorting = '-' + sorting;
+            }
+            //const sorting = [{column: this.pageOptions.sortingColumn, direction: this.pageOptions.sortDirection}];
 
             // filter instructions
-            let filters = [];
+            let filters = {};
             for (let k in this.filters) {
                 if (this.filters.hasOwnProperty(k) && null !== this.filters[k]) {
-                    filters.push({column: k, filter: this.filters[k]});
+                    filters[k] = this.filters[k];
+                    //filters.push({column: k, filter: this.filters[k]});
                 }
             }
 
@@ -354,24 +365,25 @@ let index = function () {
             const today = new Date();
 
             let params = {
-                sorting: sorting,
-                filters: filters,
-                today: today,
-                type: type,
-                page: this.page,
-                start: start,
-                end: end
+                sort: sorting,
+                filter: filters,
+                currentMoment: today,
+                // type: type,
+                page: {number: this.page},
+                startPeriod: start,
+                endPeriod: end
             };
 
             if (!this.tableColumns.balance_difference.enabled) {
-                delete params.start;
-                delete params.end;
+                delete params.startPeriod;
+                delete params.enPeriod;
             }
             this.accounts = [];
             let groupedAccounts = {};
             // one page only.o
             (new Get()).index(params).then(response => {
-                this.totalPages = response.meta.pagination.total_pages;
+                console.log(response);
+                this.totalPages = response.meta.lastPage;
                 for (let i = 0; i < response.data.length; i++) {
                     if (response.data.hasOwnProperty(i)) {
                         let current = response.data[i];
@@ -386,18 +398,19 @@ let index = function () {
                             account_number: null === current.attributes.account_number ? '' : current.attributes.account_number,
                             current_balance: current.attributes.current_balance,
                             currency_code: current.attributes.currency_code,
-                            native_current_balance: current.attributes.native_current_balance,
-                            native_currency_code: current.attributes.native_currency_code,
+                            //native_current_balance: current.attributes.native_current_balance,
+                            //native_currency_code: current.attributes.native_currency_code,
                             last_activity: null === current.attributes.last_activity ? '' : format(new Date(current.attributes.last_activity), i18next.t('config.month_and_day_fns')),
-                            balance_difference: current.attributes.balance_difference,
-                            native_balance_difference: current.attributes.native_balance_difference,
+                            //balance_difference: current.attributes.balance_difference,
+                            //native_balance_difference: current.attributes.native_balance_difference,
                             liability_type: current.attributes.liability_type,
                             liability_direction: current.attributes.liability_direction,
                             interest: current.attributes.interest,
                             interest_period: current.attributes.interest_period,
-                            current_debt: current.attributes.current_debt,
+                            //current_debt: current.attributes.current_debt,
+                            balance: current.attributes.balance,
+                            native_balance: current.attributes.native_balance,
                         };
-
                         // get group info:
                         let groupId = current.attributes.object_group_id;
                         if(!this.pageOptions.groupedAccounts) {

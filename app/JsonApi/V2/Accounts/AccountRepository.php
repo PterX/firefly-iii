@@ -99,6 +99,10 @@ class AccountRepository extends AbstractRepository implements QueriesAll, Create
         return Capabilities\CrudAccount::make();
     }
 
+    /**
+     * TODO piggy banks
+     * TODO transactions
+     */
     protected function relations(): CrudRelations
     {
         Log::debug(__METHOD__);
