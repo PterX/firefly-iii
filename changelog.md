@@ -14,15 +14,15 @@ And yes, despite my goal not to change things, some very clever users (that's yo
 - Support for PHP 8.5
 
 ### Changed
-- #11776
+- [PR 11776](https://github.com/firefly-iii/firefly-iii/pull/11776) (Convert to primary currency for charts) reported by @dakennguyen
 - The update check now contacts GitHub directly.
 
 ### Removed
 - Support for PHP 8.4 and earlier
 
 ### Fixed
-- #11685
-- #11778
+- [Discussion 11685](https://github.com/orgs/firefly-iii/discussions/11685) (Yearly budget best practices) started by @molnarti
+- [Issue 11778](https://github.com/firefly-iii/firefly-iii/issues/11778) (API update rule trigger only accepts "store-journal") reported by @jhns-de
 - Test notification was broken for system owners.
 
 ## v6.4.23 - 2026-02-20
