@@ -4,9 +4,9 @@ body:
   - type: checkboxes
     attributes:
       label: Support guidelines
-      description: Please read the support guidelines before proceeding.
+      description: Thank you for reading the support guidelines before proceeding.
       options:
-        - label: I've read the <!-- MZ2udTpin6FL --> [support guidelines](https://github.com/firefly-iii/firefly-iii/blob/main/.github/support.md)
+        - label: I'm smart and I read the <!-- MZ2udTpin6FL --> [support guidelines](https://github.com/firefly-iii/firefly-iii/blob/main/.github/support.md)
           required: true
 
   - type: checkboxes
@@ -29,7 +29,7 @@ body:
     attributes:
       label: Debug information
       description: Please provide the table from the /debug page. Do not add backticks or quotes.
-      placeholder: The output from the /debug page
+      placeholder: The output from the /debug page or "N/A"
     validations:
       required: true
 
