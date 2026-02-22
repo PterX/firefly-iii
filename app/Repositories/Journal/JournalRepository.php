@@ -77,8 +77,7 @@ class JournalRepository implements JournalRepositoryInterface, UserGroupInterfac
             ->transactionJournals()
             ->leftJoin('transaction_types', 'transaction_types.id', '=', 'transaction_journals.transaction_type_id')
             ->whereIn('transaction_types.type', $types)
-            ->get(['transaction_journals.*'])
-        ;
+            ->get(['transaction_journals.*']);
     }
 
     /**
@@ -89,8 +88,7 @@ class JournalRepository implements JournalRepositoryInterface, UserGroupInterfac
         return $this->user
             ->transactionJournals()
             ->orderBy('date', 'ASC')
-            ->first(['transaction_journals.*'])
-        ;
+            ->first(['transaction_journals.*']);
     }
 
     #[Override]
@@ -115,7 +113,7 @@ class JournalRepository implements JournalRepositoryInterface, UserGroupInterfac
      */
     public function getJournalTotal(TransactionJournal $journal): string
     {
-        $cache  = new CacheProperties();
+        $cache = new CacheProperties();
         $cache->addProperty($journal->id);
         $cache->addProperty('amount-positive');
         if ($cache->has()) {
@@ -124,7 +122,7 @@ class JournalRepository implements JournalRepositoryInterface, UserGroupInterfac
 
         // saves on queries:
         $amount = $journal->transactions()->where('amount', '>', 0)->get()->sum('amount');
-        $amount = (string) $amount;
+        $amount = (string)$amount;
         $cache->store($amount);
 
         return $amount;
@@ -135,8 +133,7 @@ class JournalRepository implements JournalRepositoryInterface, UserGroupInterfac
         return $this->user
             ->transactionJournals()
             ->orderBy('date', 'DESC')
-            ->first(['transaction_journals.*'])
-        ;
+            ->first(['transaction_journals.*']);
     }
 
     public function getLinkNoteText(TransactionJournalLink $link): string
@@ -144,7 +141,7 @@ class JournalRepository implements JournalRepositoryInterface, UserGroupInterfac
         /** @var null|Note $note */
         $note = $link->notes()->first();
 
-        return (string) $note?->text;
+        return (string)$note?->text;
     }
 
     /**
@@ -187,8 +184,7 @@ class JournalRepository implements JournalRepositoryInterface, UserGroupInterfac
         return $this->userGroup
             ->transactionJournals()
             ->where('completed', false)
-            ->get(['transaction_journals.*'])
-        ;
+            ->get(['transaction_journals.*']);
     }
 
     #[Override]
@@ -212,8 +208,7 @@ class JournalRepository implements JournalRepositoryInterface, UserGroupInterfac
         $query = $this->user
             ->transactionJournals()
             ->orderBy('date', 'DESC')
-            ->orderBy('description', 'ASC')
-        ;
+            ->orderBy('description', 'ASC');
         if ('' !== $search) {
             $query->whereLike('description', sprintf('%%%s%%', $search));
         }
@@ -272,5 +267,42 @@ class JournalRepository implements JournalRepositoryInterface, UserGroupInterfac
         $journal->refresh();
 
         return $journal;
+    }
+
+    #[\Override]
+    public function countByMeta(string $field, string $value, bool $includeDeleted): int
+    {
+        $search = TransactionJournalMeta::
+        leftJoin('transaction_journals', 'transaction_journals.id', '=', 'journal_meta.transaction_journal_id')
+                                        ->where('name', $field)->where('data', json_encode($value))
+                                        ->where('transaction_journals.user_id', $this->user->id);
+        if ($includeDeleted) {
+            $search->withTrashed();
+        }
+        return $search->count();
+    }
+
+    #[\Override]
+    public function countByNotes(string $value, bool $includeDeleted): int
+    {
+        $search = Note::
+        where('noteable_type', TransactionJournal::class)
+                      ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'notes.noteable_id')
+                      ->where('transaction_journals.user_id', $this->user->id)
+                      ->where('text', 'LIKE', sprintf('%%%s%%', $value));
+        if ($includeDeleted) {
+            $search->withTrashed();
+        }
+        return $search->count();
+    }
+
+    #[\Override]
+    public function countByDescription(string $value, bool $includeDeleted): int
+    {
+        $search = $this->user->transactionJournals()->where('description', $value);
+        if ($includeDeleted) {
+            $search->withTrashed();
+        }
+        return $search->count();
     }
 }

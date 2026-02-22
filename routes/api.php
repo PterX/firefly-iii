@@ -699,6 +699,7 @@ Route::group(
     ],
     static function (): void {
         Route::get('transactions', ['uses' => 'TransactionController@search', 'as' => 'transactions']);
+        Route::get('transactions/count', ['uses' => 'TransactionController@count', 'as' => 'count']);
         Route::get('accounts', ['uses' => 'AccountController@search', 'as' => 'accounts']);
     }
 );
