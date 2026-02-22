@@ -436,7 +436,7 @@ class Steam
         if ($cache->has()) {
             Log::debug('Return cached finalAccountBalanceInRange');
 
-            // return $cache->get();
+             return $cache->get();
         }
 
         $balances             = [];
