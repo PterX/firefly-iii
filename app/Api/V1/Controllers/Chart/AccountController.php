@@ -142,23 +142,30 @@ class AccountController extends Controller
         }
         // create array of values to collect.
 
-        while ($currentStart <= $params['end']) {
-            $format                        = $currentStart->format('Y-m-d');
-            $label                         = $currentStart->toAtomString();
-            $balance                       = array_key_exists($format, $range) ? $range[$format]['balance'] : $previous;
-            $previous                      = $balance;
-            $currentSet['entries'][$label] = $balance;
+        $rangeDates = array_keys($range);
+        $rangeIdx   = 0;
+        $rangeCount = count($rangeDates);
 
-            // do the same for the primary currency balance, if relevant:
+        while ($currentStart <= $params['end']) {
+            $format = $currentStart->format('Y-m-d');
+            $label  = $currentStart->toAtomString();
+
+            // Advance through all range entries up to current chart date
+            while ($rangeIdx < $rangeCount && $rangeDates[$rangeIdx] <= $format) {
+                $previous = $range[$rangeDates[$rangeIdx]]['balance'];
+                if ($this->convertToPrimary) {
+                    $pcPrevious = $range[$rangeDates[$rangeIdx]]['pc_balance'];
+                }
+                ++$rangeIdx;
+            }
+
+            $currentSet['entries'][$label] = $previous;
             $pcBalance                     = null;
             if ($this->convertToPrimary) {
-                $pcBalance                        = array_key_exists($format, $range) ? $range[$format]['pc_balance'] : $pcPrevious;
-                $pcPrevious                       = $pcBalance;
-                $currentSet['pc_entries'][$label] = $pcBalance;
+                $currentSet['pc_entries'][$label] = $pcPrevious;
             }
-            $currentStart                  = Navigation::addPeriod($currentStart, $period);
 
-            // $currentStart->addDay();
+            $currentStart = Navigation::addPeriod($currentStart, $period);
         }
         $this->chartData[] = $currentSet;
     }
