@@ -31,12 +31,6 @@ use Override;
 
 class CountRequest extends AggregateFormRequest
 {
-    #[Override]
-    protected function getRequests(): array
-    {
-        return [];
-    }
-
     public function rules(): array
     {
         return [
@@ -60,5 +54,11 @@ class CountRequest extends AggregateFormRequest
             $this->attributes->set('description', $this->convertString('description'));
             $this->attributes->set('internal_reference', $this->convertString('internal_reference'));
         });
+    }
+
+    #[Override]
+    protected function getRequests(): array
+    {
+        return [];
     }
 }
