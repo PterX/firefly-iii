@@ -24,8 +24,8 @@ And yes, despite my goal not to change things, some very clever users (that's yo
 - [Discussion 11685](https://github.com/orgs/firefly-iii/discussions/11685) (Yearly budget best practices) started by @molnarti
 - [Issue 11778](https://github.com/firefly-iii/firefly-iii/issues/11778) (API update rule trigger only accepts "store-journal") reported by @jhns-de
 - [Issue 11785](https://github.com/firefly-iii/firefly-iii/issues/11785) (The `/api/v1/chart/account/overview` endpoint returns incorrect balances when `period` is set to anything larger than `1D` (e.g. `1W`, `1M`).) reported by @R1DEN
-- #11792
-- #11795
+- [Issue 11792](https://github.com/firefly-iii/firefly-iii/issues/11792) (Uploading attachment to Piggy Bank causes "Attempt to read property 'user' on null" error) reported by @MrWuTalk2022
+- [Issue 11795](https://github.com/firefly-iii/firefly-iii/issues/11795) (`pc_amount` always equals raw `amount` — operator precedence bug in TransactionGroupTransformer) reported by @R1DEN
 - Test notification was broken for system owners.
 
 ## v6.4.23 - 2026-02-20
