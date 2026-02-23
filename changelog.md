@@ -23,7 +23,7 @@ And yes, despite my goal not to change things, some very clever users (that's yo
 ### Fixed
 - [Discussion 11685](https://github.com/orgs/firefly-iii/discussions/11685) (Yearly budget best practices) started by @molnarti
 - [Issue 11778](https://github.com/firefly-iii/firefly-iii/issues/11778) (API update rule trigger only accepts "store-journal") reported by @jhns-de
-- #11785
+- [Issue 11785](https://github.com/firefly-iii/firefly-iii/issues/11785) (The `/api/v1/chart/account/overview` endpoint returns incorrect balances when `period` is set to anything larger than `1D` (e.g. `1W`, `1M`).) reported by @R1DEN
 - Test notification was broken for system owners.
 
 ## v6.4.23 - 2026-02-20
