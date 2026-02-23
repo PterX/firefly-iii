@@ -230,7 +230,11 @@ class AttachmentHelper implements AttachmentHelperInterface
         $count  = 0;
         // ignore lines about polymorphic calls.
         if ($model instanceof PiggyBank) {
-            $count = $model->accounts()->first()->user->attachments()->where('md5', $md5)->where('attachable_id', $model->id)->where('attachable_type', $class)->count();
+            $count = $model
+                ->accounts()
+                ->first()
+                ->user->attachments()->where('md5', $md5)->where('attachable_id', $model->id)->where('attachable_type', $class)->count()
+            ;
         }
         if (!$model instanceof PiggyBank) {
             $count = $model->user->attachments()->where('md5', $md5)->where('attachable_id', $model->id)->where('attachable_type', $class)->count();
