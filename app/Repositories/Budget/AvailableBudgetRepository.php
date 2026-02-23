@@ -105,6 +105,22 @@ class AvailableBudgetRepository implements AvailableBudgetRepositoryInterface, U
         return $this->user->availableBudgets->find($id);
     }
 
+    #[Override]
+    public function findInRange(TransactionCurrency $currency, Carbon $start, Carbon $end): Collection
+    {
+        /** @var null|AvailableBudget */
+        return $this->user
+            ->availableBudgets()
+            ->where('transaction_currency_id', $currency->id)
+            // start date OR end date must be the same or equal to start or END respectively.
+            ->where(function ($q1) use ($start, $end): void {
+                $q1->whereBetween('start_date', [$start, $end]);
+                $q1->orWhereBetween('end_date', [$start, $end]);
+            })
+            ->get(['available_budgets.*'])
+        ;
+    }
+
     /**
      * Return a list of all available budgets (in all currencies) (for the selected period).
      */

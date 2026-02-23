@@ -48,6 +48,47 @@ class JournalRepository implements JournalRepositoryInterface, UserGroupInterfac
 {
     use UserGroupTrait;
 
+    #[Override]
+    public function countByDescription(string $value, bool $includeDeleted): int
+    {
+        $search = $this->user->transactionJournals()->where('description', $value);
+        if ($includeDeleted) {
+            $search->withTrashed();
+        }
+
+        return $search->count();
+    }
+
+    #[Override]
+    public function countByMeta(string $field, string $value, bool $includeDeleted): int
+    {
+        $search = TransactionJournalMeta::leftJoin('transaction_journals', 'transaction_journals.id', '=', 'journal_meta.transaction_journal_id')
+            ->where('name', $field)
+            ->where('data', json_encode($value))
+            ->where('transaction_journals.user_id', $this->user->id)
+        ;
+        if ($includeDeleted) {
+            $search->withTrashed();
+        }
+
+        return $search->count();
+    }
+
+    #[Override]
+    public function countByNotes(string $value, bool $includeDeleted): int
+    {
+        $search = Note::where('noteable_type', TransactionJournal::class)
+            ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'notes.noteable_id')
+            ->where('transaction_journals.user_id', $this->user->id)
+            ->where('text', 'LIKE', sprintf('%%%s%%', $value))
+        ;
+        if ($includeDeleted) {
+            $search->withTrashed();
+        }
+
+        return $search->count();
+    }
+
     public function destroyGroup(TransactionGroup $transactionGroup): void
     {
         /** @var TransactionGroupDestroyService $service */

@@ -24,7 +24,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
-use Deprecated;
 use FireflyIII\Handlers\Observer\AutoBudgetObserver;
 use FireflyIII\Support\Models\ReturnsIntegerIdTrait;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -39,20 +38,8 @@ class AutoBudget extends Model
     use ReturnsIntegerIdTrait;
     use SoftDeletes;
 
-    /** @deprecated */
-    #[Deprecated]
-    public const int AUTO_BUDGET_ADJUSTED = 3;
-
-    /** @deprecated */
-    #[Deprecated]
-    public const int AUTO_BUDGET_RESET    = 1;
-
-    /** @deprecated */
-    #[Deprecated]
-    public const int AUTO_BUDGET_ROLLOVER = 2;
-
-    protected $casts                      = ['amount'        => 'string', 'native_amount' => 'string'];
-    protected $fillable                   = ['budget_id', 'amount', 'period', 'native_amount'];
+    protected $casts    = ['amount'        => 'string', 'native_amount' => 'string'];
+    protected $fillable = ['budget_id', 'amount', 'period', 'native_amount'];
 
     public function budget(): BelongsTo
     {

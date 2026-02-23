@@ -87,6 +87,7 @@ class Steam
             ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
             ->leftJoin('transaction_currencies', 'transaction_currencies.id', '=', 'transactions.transaction_currency_id')
             ->where('transaction_journals.date', $inclusive ? '<=' : '<', $date->format('Y-m-d H:i:s'))
+            ->whereNull('transaction_journals.deleted_at')
             ->groupBy(['transactions.account_id', 'transaction_currencies.code'])
             ->get(['transactions.account_id', 'transaction_currencies.code', DB::raw('SUM(transactions.amount) as sum_of_amount')])
             ->toArray()
@@ -435,7 +436,7 @@ class Steam
         if ($cache->has()) {
             Log::debug('Return cached finalAccountBalanceInRange');
 
-            // return $cache->get();
+            return $cache->get();
         }
 
         $balances             = [];
@@ -469,7 +470,7 @@ class Steam
             ->transactions()
             ->leftJoin('transaction_journals', 'transactions.transaction_journal_id', '=', 'transaction_journals.id')
             ->where('transaction_journals.date', '>=', $start->format('Y-m-d H:i:s'))
-            ->where('transaction_journals.date', '<=', $end->format('Y-m-d  H:i:s'))
+            ->where('transaction_journals.date', '<=', $end->format('Y-m-d H:i:s'))
             ->groupBy('transaction_journals.date')
             ->groupBy('transactions.transaction_currency_id')
             ->orderBy('transaction_journals.date', 'ASC')

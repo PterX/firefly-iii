@@ -103,10 +103,10 @@ class CategoryController extends Controller
      */
     public function frontPage(): JsonResponse
     {
-        $start              = session('start', today(config('app.timezone'))->startOfMonth());
-        $end                = session('end', today(config('app.timezone'))->endOfMonth());
+        $start                                = session('start', today(config('app.timezone'))->startOfMonth());
+        $end                                  = session('end', today(config('app.timezone'))->endOfMonth());
         // chart properties for cache:
-        $cache              = new CacheProperties();
+        $cache                                = new CacheProperties();
         $cache->addProperty($start);
         $cache->addProperty($end);
         $cache->addProperty($this->convertToPrimary);
@@ -115,9 +115,11 @@ class CategoryController extends Controller
             return response()->json($cache->get());
         }
 
-        $frontpageGenerator = new FrontpageChartGenerator($start, $end);
-        $chartData          = $frontpageGenerator->generate();
-        $data               = $this->generator->multiSet($chartData);
+        $frontpageGenerator                   = new FrontpageChartGenerator($start, $end);
+        $frontpageGenerator->convertToPrimary = $this->convertToPrimary;
+
+        $chartData                            = $frontpageGenerator->generate();
+        $data                                 = $this->generator->multiSet($chartData);
         $cache->store($data);
 
         return response()->json($data);
@@ -281,6 +283,6 @@ class CategoryController extends Controller
             }
         }
 
-        return $this->generator->multiSet($chartData);
+        return $this->generator->multiSet($chartData, array_values($periods));
     }
 }

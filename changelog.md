@@ -3,7 +3,32 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## v6.4.23
+## v6.5.0 - 2026-02-20
+
+> [!IMPORTANT]  
+> This release is the same as 6.4.23, but only works on PHP 8.5 and higher. To continue using the latest version of Firefly III, you must upgrade to (at least) PHP 8.5.0, or switch to the Docker containers. Read more about Firefly III's release and support schedule in [`releases.md`](releases.md).
+
+And yes, despite my goal not to change things, some very clever users (that's you!) found some interesting bugs that will not make it back to 6.4.x.
+
+### Added
+- Support for PHP 8.5
+
+### Changed
+- [PR 11776](https://github.com/firefly-iii/firefly-iii/pull/11776) (Convert to primary currency for charts) reported by @dakennguyen
+- The update check now contacts GitHub directly.
+
+### Removed
+- Support for PHP 8.4 and earlier
+
+### Fixed
+- [Discussion 11685](https://github.com/orgs/firefly-iii/discussions/11685) (Yearly budget best practices) started by @molnarti
+- [Issue 11778](https://github.com/firefly-iii/firefly-iii/issues/11778) (API update rule trigger only accepts "store-journal") reported by @jhns-de
+- [Issue 11785](https://github.com/firefly-iii/firefly-iii/issues/11785) (The `/api/v1/chart/account/overview` endpoint returns incorrect balances when `period` is set to anything larger than `1D` (e.g. `1W`, `1M`).) reported by @R1DEN
+- [Issue 11792](https://github.com/firefly-iii/firefly-iii/issues/11792) (Uploading attachment to Piggy Bank causes "Attempt to read property 'user' on null" error) reported by @MrWuTalk2022
+- [Issue 11795](https://github.com/firefly-iii/firefly-iii/issues/11795) (`pc_amount` always equals raw `amount` — operator precedence bug in TransactionGroupTransformer) reported by @R1DEN
+- Test notification was broken for system owners.
+
+## v6.4.23 - 2026-02-20
 
 > [!WARNING]
 > If no pressing issues get reported, this release will be followed by **v6.5.0**. It will be exactly the same but require PHP 8.5.

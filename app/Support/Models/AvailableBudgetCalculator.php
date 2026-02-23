@@ -131,33 +131,41 @@ class AvailableBudgetCalculator
 
     private function refreshAvailableBudget(Carbon $start): void
     {
-        $end             = Navigation::endOfPeriod($start, $this->viewRange);
+        $end              = Navigation::endOfPeriod($start, $this->viewRange);
         Log::debug(sprintf('refreshAvailableBudget(%s), end is %s', $start->format('Y-m-d'), $end->format('Y-m-d')));
-        $availableBudget = $this->abRepository->find($this->currency, $start, $end);
 
-        if (null !== $availableBudget) {
-            Log::debug('Found available budget for this period, will update it.');
-            $this->abRepository->recalculateAmount($availableBudget);
+        if ($end->lt($start)) {
+            Log::error(sprintf('%s is less than %s, stop.', $start->format('Y-m-d'), $end->format('Y-m-d')));
 
             return;
+        }
+
+        $availableBudget  = $this->abRepository->find($this->currency, $start, $end);
+        $availableBudgets = $this->abRepository->findInRange($this->currency, $start, $end);
+
+        foreach ($availableBudgets as $item) {
+            Log::debug(sprintf(
+                'findInRange found available budget #%d (%s - %s), will update it.',
+                $item->id,
+                $item->start_date->format('Y-m-d'),
+                $item->end_date->format('Y-m-d')
+            ));
+            $this->abRepository->recalculateAmount($availableBudget);
         }
         if (!$this->create) {
             Log::debug('Can stop here. have not been asked to create an available budget.');
 
             return;
         }
-        if ($end->lt($start)) {
-            Log::error(sprintf('%s is less than %s, stop.', $start->format('Y-m-d'), $end->format('Y-m-d')));
-
-            return;
+        if (null === $availableBudget) {
+            Log::debug(sprintf('Will create new available budget for period %s to %s', $start->format('Y-m-d'), $end->format('Y-m-d')));
+            $availableBudget = $this->abRepository->store([
+                'start'       => $start,
+                'end'         => $end,
+                'currency_id' => $this->currency->id,
+                'amount'      => '1',
+            ]);
+            $this->abRepository->recalculateAmount($availableBudget);
         }
-        Log::debug(sprintf('Will create new available budget for period %s to %s', $start->format('Y-m-d'), $end->format('Y-m-d')));
-        $availableBudget = $this->abRepository->store([
-            'start'       => $start,
-            'end'         => $end,
-            'currency_id' => $this->currency->id,
-            'amount'      => '1',
-        ]);
-        $this->abRepository->recalculateAmount($availableBudget);
     }
 }

@@ -24,7 +24,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
-use Deprecated;
 use FireflyIII\Support\Models\ReturnsIntegerIdTrait;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -36,23 +35,7 @@ class RecurrenceRepetition extends Model
     use ReturnsIntegerIdTrait;
     use SoftDeletes;
 
-    /** @deprecated */
-    #[Deprecated]
-    public const int WEEKEND_DO_NOTHING    = 1;
-
-    /** @deprecated */
-    #[Deprecated]
-    public const int WEEKEND_SKIP_CREATION = 2;
-
-    /** @deprecated */
-    #[Deprecated]
-    public const int WEEKEND_TO_FRIDAY     = 3;
-
-    /** @deprecated */
-    #[Deprecated]
-    public const int WEEKEND_TO_MONDAY     = 4;
-
-    protected $casts                       = [
+    protected $casts    = [
         'created_at'        => 'datetime',
         'updated_at'        => 'datetime',
         'deleted_at'        => 'datetime',
@@ -62,9 +45,9 @@ class RecurrenceRepetition extends Model
         'weekend'           => 'int',
     ];
 
-    protected $fillable                    = ['recurrence_id', 'weekend', 'repetition_type', 'repetition_moment', 'repetition_skip'];
+    protected $fillable = ['recurrence_id', 'weekend', 'repetition_type', 'repetition_moment', 'repetition_skip'];
 
-    protected $table                       = 'recurrences_repetitions';
+    protected $table    = 'recurrences_repetitions';
 
     public function recurrence(): BelongsTo
     {

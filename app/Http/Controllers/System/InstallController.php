@@ -58,6 +58,7 @@ class InstallController extends Controller
     private array $upgradeCommands      = [
         // there are 5 initial commands
         // Check 4 places: InstallController, Docker image, UpgradeDatabase, composer.json
+        'firefly-iii:create-database'        => [],
         'migrate'                            => ['--seed'  => true, '--force' => true],
         'generate-keys'                      => [], // an exception :(
         'firefly-iii:upgrade-database'       => [],
