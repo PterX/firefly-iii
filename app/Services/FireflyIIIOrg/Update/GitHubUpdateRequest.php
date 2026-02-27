@@ -192,7 +192,7 @@ class GitHubUpdateRequest implements UpdateRequestInterface
         }
         if (!$this->localDebug) {
             try {
-                $res = $client->get('https://api.githubsdadad.com/repos/firefly-iii/firefly-iii/releases', $opts);
+                $res = $client->get('https://api.github.com/repos/firefly-iii/firefly-iii/releases', $opts);
             } catch (ClientException| Exception $e) {
                 Log::error($e->getMessage());
 
