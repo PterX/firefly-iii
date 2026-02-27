@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 6.5.1 - 2026-02-28
+
+> [!IMPORTANT]  
+> This releases also fixes a security issue, relevant only if you have multiple users using your Firefly III instance. Upgrading is recommended. 
+
+### Added
+
+- #11808
+
+### Fixed
+
+- #11817
+- #11814
+- #11750
+
+### Security
+
+- Security issue where any authenticated user with API access also has read access to the `/api/v1/users` endpoint. Authenticated users would be able to see other user's email addresses, blocked status and roles, even when not admin. No actual financial data was exposed, just the user's info itself.
+
+### API
+
+- Added extra checks to the `/api/v1/users` endpoints.
+
+
 ## v6.5.0 - 2026-02-20
 
 > [!IMPORTANT]  
