@@ -10,13 +10,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- #11808
+- [PR 11808](https://github.com/firefly-iii/firefly-iii/pull/11808) (Add Thai baht to Currency Seeder) reported by @CinnamonPyro
 
 ### Fixed
 
-- #11817
-- #11814
-- #11750
+- [Issue 11817](https://github.com/firefly-iii/firefly-iii/issues/11817) (500 Error if internet is inaccessible while checking for updates) reported by @NoiTheCat
+- [Issue 11814](https://github.com/firefly-iii/firefly-iii/issues/11814) (Budget : error with CRON after switch user range view) reported by @fabienfitoussi
+- [Issue 11750](https://github.com/firefly-iii/firefly-iii/issues/11750) (500 error when creating first user with USD balance (works after refresh)) reported by @pinalgirkar
 
 ### Security
 

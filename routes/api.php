@@ -344,9 +344,9 @@ Route::group(
 // User group API routes.
 Route::group(
     [
-        'namespace' => 'FireflyIII\Api\V1\Controllers\Models\UserGroup',
-        'prefix'    => 'v1/user-groups',
-        'as'        => 'api.v1.user-groups.',
+        'namespace'  => 'FireflyIII\Api\V1\Controllers\Models\UserGroup',
+        'prefix'     => 'v1/user-groups',
+        'as'         => 'api.v1.user-groups.',
         'middleware' => ['admin'],
     ],
     static function (): void {
@@ -721,9 +721,9 @@ Route::group(
 // Configuration API routes
 Route::group(
     [
-        'namespace' => 'FireflyIII\Api\V1\Controllers\System',
-        'prefix'    => 'v1/configuration',
-        'as'        => 'api.v1.configuration.',
+        'namespace'  => 'FireflyIII\Api\V1\Controllers\System',
+        'prefix'     => 'v1/configuration',
+        'as'         => 'api.v1.configuration.',
         'middleware' => ['admin'],
     ],
     static function (): void {
