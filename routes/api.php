@@ -347,6 +347,7 @@ Route::group(
         'namespace' => 'FireflyIII\Api\V1\Controllers\Models\UserGroup',
         'prefix'    => 'v1/user-groups',
         'as'        => 'api.v1.user-groups.',
+        'middleware' => ['admin'],
     ],
     static function (): void {
         Route::get('', ['uses' => 'IndexController@index', 'as' => 'index']);
@@ -723,6 +724,7 @@ Route::group(
         'namespace' => 'FireflyIII\Api\V1\Controllers\System',
         'prefix'    => 'v1/configuration',
         'as'        => 'api.v1.configuration.',
+        'middleware' => ['admin'],
     ],
     static function (): void {
         Route::get('', ['uses' => 'ConfigurationController@index', 'as' => 'index']);
@@ -736,6 +738,7 @@ Route::group(
         'namespace'  => 'FireflyIII\Api\V1\Controllers\System',
         'prefix'     => 'v1/users',
         'as'         => 'api.v1.users.',
+        'middleware' => ['admin'],
     ],
     static function (): void {
         Route::get('', ['uses' => 'UserController@index', 'as' => 'index']);
