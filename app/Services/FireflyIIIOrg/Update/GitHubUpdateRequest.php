@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace FireflyIII\Services\FireflyIIIOrg\Update;
 
 use Carbon\Carbon;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Log;
@@ -180,7 +181,7 @@ class GitHubUpdateRequest implements UpdateRequestInterface
     private function getReleases(): array
     {
         $client = new Client();
-        $opts   = ['headers'   => ['User-Agent' => 'FireflyIII/'.config('firefly.version')]];
+        $opts   = ['timeout' => 5.0, 'headers' => ['User-Agent' => 'FireflyIII/'.config('firefly.version')]];
         $return = [];
         $body   = '';
         if ($this->localDebug && file_exists('json.json')) {
@@ -189,7 +190,7 @@ class GitHubUpdateRequest implements UpdateRequestInterface
         if (!$this->localDebug) {
             try {
                 $res = $client->get('https://api.github.com/repos/firefly-iii/firefly-iii/releases', $opts);
-            } catch (ClientException $e) {
+            } catch (ClientException|Exception $e) {
                 Log::error($e->getMessage());
 
                 return [];
