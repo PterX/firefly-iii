@@ -209,12 +209,12 @@ class UpdateRequest extends FormRequest
             'transactions.*.sepa_batch_id'          => 'min:1|max:255|nullable',
 
             // dates
-            'transactions.*.interest_date'          => 'date|nullable',
-            'transactions.*.book_date'              => 'date|nullable',
-            'transactions.*.process_date'           => 'date|nullable',
-            'transactions.*.due_date'               => 'date|nullable',
-            'transactions.*.payment_date'           => 'date|nullable',
-            'transactions.*.invoice_date'           => 'date|nullable',
+            'transactions.*.interest_date'          => 'date|nullable|after:1970-01-02|before:2038-01-17',
+            'transactions.*.book_date'              => 'date|nullable|after:1970-01-02|before:2038-01-17',
+            'transactions.*.process_date'           => 'date|nullable|after:1970-01-02|before:2038-01-17',
+            'transactions.*.due_date'               => 'date|nullable|after:1970-01-02|before:2038-01-17',
+            'transactions.*.payment_date'           => 'date|nullable|after:1970-01-02|before:2038-01-17',
+            'transactions.*.invoice_date'           => 'date|nullable|after:1970-01-02|before:2038-01-17',
         ];
     }
 
