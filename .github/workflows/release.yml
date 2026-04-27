@@ -102,7 +102,6 @@ jobs:
       - name: Setup Mago
         uses: nhedger/setup-mago@v1
         with:
-          version: "latest"
           working-directory: "."
       - name: Run CI
         run: |
