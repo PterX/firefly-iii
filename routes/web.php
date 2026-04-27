@@ -387,6 +387,9 @@ Route::group(
     }
 );
 
+
+
+
 // exchange rates controller
 Route::group(
     ['middleware' => 'user-full-auth', 'namespace' => 'FireflyIII\Http\Controllers\ExchangeRates', 'prefix' => 'exchange-rates', 'as' => 'exchange-rates.'],

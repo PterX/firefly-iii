@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v6.6.2 - 2026-04-28
+
+<!-- summary: This releases fixes a security issue and some small UI issues. Please upgrade at your earliest convenience. -->
+
+### Added
+
+- #12179
+- #12182
+
+### Fixed
+
+- #12169
+- #12186
+
+### Security
+
+- Fixed an issue where oAuth tokens could be generated before you confirmed your 2FA state. This would allow access to your data when your password was stolen, despite you having MFA enabled.
+
 ## v6.6.1 - 2026-04-19
 
 <!-- summary: This releases upgrades many dependencies and will invalidate all of your OAuth-tokens and clients. -->
