@@ -32,8 +32,9 @@ if (!defined('DATEFORMAT')) {
 // new Passport routes.
 Route::group(
     [
-        'as'        => 'passport.',
-        'prefix'    => 'oauth',
+        'as'         => 'passport.',
+        'prefix'     => 'oauth',
+        'middleware' => ['user-full-auth'],
         // 'namespace' => 'FireflyIII\Http\Controllers\OAuth',
     ],
     function (): void {
@@ -385,6 +386,9 @@ Route::group(
         Route::post('destroy/{currency}', ['uses' => 'DeleteController@destroy', 'as' => 'destroy']);
     }
 );
+
+
+
 
 // exchange rates controller
 Route::group(

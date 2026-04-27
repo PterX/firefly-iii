@@ -5,7 +5,7 @@ disclosure and response policy to ensure that critical issues are responsibly ha
 
 ## Supported versions
 
-Only the latest Firefly III release is maintained. Applicable fixes, including security fixes, will not backported to
+Only the latest Firefly III release is maintained. Applicable fixes, including security fixes, will not be backported to
 older release branches. Please refer to [releases.md](https://github.com/firefly-iii/firefly-iii/blob/main/releases.md) for details.
 
 ## Reporting a vulnerability - private disclosure process

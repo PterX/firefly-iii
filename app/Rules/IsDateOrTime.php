@@ -50,7 +50,7 @@ class IsDateOrTime implements ValidationRule
         if (10 === strlen($value)) {
             // probably a date format.
             try {
-                Carbon::createFromFormat('Y-m-d', $value);
+                $object = Carbon::createFromFormat('Y-m-d', $value);
             } catch (InvalidDateException $e) {
                 Log::error(sprintf('"%s" is not a valid date: %s', $value, $e->getMessage()));
 
@@ -64,13 +64,18 @@ class IsDateOrTime implements ValidationRule
 
                 return;
             }
+            if ($object->year < 1970) {
+                $fail('validation.date_or_time')->translate();
+
+                return;
+            }
 
             return;
         }
 
         // is an atom string, I hope?
         try {
-            Carbon::parse($value);
+            $object = Carbon::parse($value);
         } catch (InvalidDateException $e) {
             Log::error(sprintf('"%s" is not a valid date or time: %s', $value, $e->getMessage()));
 
@@ -80,6 +85,11 @@ class IsDateOrTime implements ValidationRule
         } catch (InvalidFormatException $e) {
             Log::error(sprintf('"%s" is of an invalid format: %s', $value, $e->getMessage()));
 
+            $fail('validation.date_or_time')->translate();
+
+            return;
+        }
+        if ($object->year < 1970) {
             $fail('validation.date_or_time')->translate();
 
             return;

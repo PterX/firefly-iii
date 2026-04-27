@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v6.6.2 - 2026-04-28
+
+<!-- summary: This releases fixes a security issue and some small UI issues. Please upgrade at your earliest convenience. -->
+
+### Added
+
+- [PR 12179](https://github.com/firefly-iii/firefly-iii/pull/12179) (implement password validation JS script) reported by @tasnim0tantawi
+- [PR 12182](https://github.com/firefly-iii/firefly-iii/pull/12182) (fix shrinked sidebar expanding when navigating by clicking on icons) reported by @tasnim0tantawi
+
+### Fixed
+
+- [Issue 12169](https://github.com/firefly-iii/firefly-iii/issues/12169) (The 'Running balance' column is not showing the respective calculation instantly for new records that use 'Rules') reported by @jgmm81
+- [Issue 12186](https://github.com/firefly-iii/firefly-iii/issues/12186) (Set a year validator accepted by the system when saving or editing a transaction) reported by @jgmm81
+
+### Security
+
+- Fixed an issue where oAuth tokens could be generated before you confirmed your 2FA state. This would allow access to your data when your password was stolen, despite you having MFA enabled.
+
 ## v6.6.1 - 2026-04-19
 
 <!-- summary: This releases upgrades many dependencies and will invalidate all of your OAuth-tokens and clients. -->
