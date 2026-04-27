@@ -101,8 +101,6 @@ jobs:
           GH_TOKEN: ''
       - name: Setup Mago
         uses: nhedger/setup-mago@v1
-        with:
-          working-directory: "."
       - name: Run CI
         run: |
           cp .env.example .env
