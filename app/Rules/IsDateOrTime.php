@@ -64,8 +64,9 @@ class IsDateOrTime implements ValidationRule
 
                 return;
             }
-            if($object->year < 1970) {
+            if ($object->year < 1970) {
                 $fail('validation.date_or_time')->translate();
+
                 return;
             }
 
@@ -88,8 +89,9 @@ class IsDateOrTime implements ValidationRule
 
             return;
         }
-        if($object->year < 1970) {
+        if ($object->year < 1970) {
             $fail('validation.date_or_time')->translate();
+
             return;
         }
     }
