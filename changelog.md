@@ -9,13 +9,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- #12179
-- #12182
+- [PR 12179](https://github.com/firefly-iii/firefly-iii/pull/12179) (implement password validation JS script) reported by @tasnim0tantawi
+- [PR 12182](https://github.com/firefly-iii/firefly-iii/pull/12182) (fix shrinked sidebar expanding when navigating by clicking on icons) reported by @tasnim0tantawi
 
 ### Fixed
 
-- #12169
-- #12186
+- [Issue 12169](https://github.com/firefly-iii/firefly-iii/issues/12169) (The 'Running balance' column is not showing the respective calculation instantly for new records that use 'Rules') reported by @jgmm81
+- [Issue 12186](https://github.com/firefly-iii/firefly-iii/issues/12186) (Set a year validator accepted by the system when saving or editing a transaction) reported by @jgmm81
 
 ### Security
 
