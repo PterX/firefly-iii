@@ -10,6 +10,7 @@ disclosure and response policy to ensure that critical issues are responsibly ha
 
 1. Any SSRF in any user provided URL field (webhooks, ntfy, SimpleFIN, Slack). It's by design that users may set-up any URL they want, be it internal, private or non-existing.
 2. Any XSS issue without a viable attack tree. If you can find a spot where Firefly III or the associated tools render unescaped data, it's not a security issue unless you can show me an actual attack that gets that data into the system.
+3. Any issue that is not true. AI models have already hallucinated security issues in Firefly III, going so far as to mention function/template/file-names including line numbers and code excerpts. Those issues did not exist. The model made them up.
 
 ## Supported versions
 
