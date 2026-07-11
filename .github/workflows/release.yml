@@ -79,7 +79,7 @@ jobs:
           php-version: ${{ github.event.inputs.phpversion || '8.5' }}
           extensions: mbstring, intl, zip, bcmath
       - name: Lint PHP
-        if: ${{ ('false' || inputs.quick) != 'true'  }}
+        if: ${{ inputs.quick != 'true' }}
         run: |
           if [[ "$quick" == "true" ]]; then
             echo "Will NOT run PHP lint"
@@ -110,7 +110,7 @@ jobs:
           quick: ${{ inputs.quick || 'false' }}
       - name: Code cleanup
         id: code-cleanup
-        if: ${{ ('false' || inputs.quick) != 'true'  }}
+        if: ${{ inputs.quick != 'true' }}
         uses: JC5/firefly-iii-dev@main
         with:
           action: 'ff3:code'
