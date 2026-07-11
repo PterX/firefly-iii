@@ -9,7 +9,7 @@ on:
         default: 'develop'
       quick:
         type: boolean
-        description: 'Skip most checks. true or false'
+        description: 'Quick run'
         required: true
         default: false
       phpversion:
@@ -120,12 +120,13 @@ jobs:
           FIREFLY_III_ROOT: /github/workspace
           GH_TOKEN: ''
       - name: Run CI
+        if: ${{ inputs.quick != true }}
         run: |
           cp .env.example .env
           # install all packages etc.
           rm -rf vendor composer.lock
           composer update --no-scripts -q
-          if [[ "$quick" == false ]]; then
+          if [[ "$quick" == true ]]; then
             echo 'Will NOT run Mago Format, will not Lint, will not run PHPStan'
           fi
 
@@ -148,8 +149,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           quick: ${{ inputs.quick || false }}
       - name: Lint Blade templates
+        if: ${{ inputs.quick != true }}
         run: |
-          if [[ "$quick" == "false" ]]; then
+          if [[ "$quick" == false ]]; then
             echo "Will now run Blade linter"
             cp .env.example .env
             php artisan blade:lint
@@ -158,6 +160,7 @@ jobs:
         env:
           quick: ${{ inputs.quick || false }}
       - name: Crowdin action
+        if: ${{ inputs.quick != true }}
         uses: crowdin/github-action@v2
         with:
           upload_sources: true
@@ -184,6 +187,7 @@ jobs:
           npm run build --workspace=v3 --verbose
           npm update
       - name: Cleanup changelog
+        if: ${{ inputs.quick != true }}
         id: cleanup-changelog
         uses: JC5/firefly-iii-dev@main
         with:
@@ -193,6 +197,7 @@ jobs:
           FIREFLY_III_ROOT: /github/workspace
           GH_TOKEN: ${{ secrets.CHANGELOG_TOKEN }}
       - name: "Create THANKS.md"
+        if: ${{ inputs.quick != true }}
         id: thank-you
         uses: JC5/firefly-iii-dev@main
         with:
