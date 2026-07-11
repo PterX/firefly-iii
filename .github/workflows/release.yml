@@ -79,6 +79,7 @@ jobs:
           php-version: ${{ github.event.inputs.phpversion || '8.5' }}
           extensions: mbstring, intl, zip, bcmath
       - name: Lint PHP
+        if: ${{ 'false' == 'false' || inputs.quick  }}
         run: |
           if [[ "$quick" == "false" ]]; then
             php_lint_file()
